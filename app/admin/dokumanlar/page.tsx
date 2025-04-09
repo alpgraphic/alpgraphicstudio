@@ -100,7 +100,7 @@ export default function DocumentsPage() {
   };
   
   // Form değerlerini güncelle
-  const handleFormChange = (e) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
