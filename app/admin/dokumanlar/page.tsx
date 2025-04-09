@@ -20,7 +20,11 @@ export default function DocumentsPage() {
   const [previewPdfUrl, setPreviewPdfUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    companyId: string;
+    file: File | null;
+  }>({
     name: '',
     companyId: '',
     file: null
