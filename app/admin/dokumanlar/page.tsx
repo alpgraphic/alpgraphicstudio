@@ -4,7 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import styles from '../admin.module.css';
 
 export default function DocumentsPage() {
-  const [pdfs, setPdfs] = useState([]);
+  type PDF = {
+    name: string;
+    companyId?: string;
+    // başka özellikler varsa buraya ekle
+  };
+  
+  const [pdfs, setPdfs] = useState<PDF[]>([]);
   const [companies, setCompanies] = useState([]);
   const [selectedPdf, setSelectedPdf] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
