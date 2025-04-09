@@ -28,9 +28,10 @@ export default function AdminLoginPage() {
           // Kullanıcı zaten giriş yapmış, dashboard'a yönlendir
           router.push('/admin');
         }
-      } catch { // catch try ile aynı satırda veya } ile bitişik olmalı
+      } catch {
         // Hata durumunda sessizce devam et, login sayfasını göster
       }
+    };
     
     checkAuth();
   }, [router]);
