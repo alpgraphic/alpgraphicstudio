@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import styles from './admin.module.css';
 
@@ -14,14 +15,9 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   const navItems = [
-
     { name: 'Firmalar', path: '/admin/firmalar', icon: '🏢' },
     { name: 'PDF Dokümanlar', path: '/admin/dokumanlar', icon: '📄' },
   ];
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
 
   return (
     <div className={styles.adminContainer}>
@@ -29,9 +25,14 @@ export default function AdminLayout({
       <aside className={`${styles.sidebar} ${isSidebarOpen ? '' : styles.collapsed}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.logo}>
-            <img src="/logo.svg" alt="Logo" className={styles.logoImage} />
+            <Image 
+              src="/logo.svg" 
+              alt="Logo" 
+              className={styles.logoImage} 
+              width={100}
+              height={40}
+            />
           </div>
-          
         </div>
         
         <nav className={styles.navigation}>
@@ -51,8 +52,6 @@ export default function AdminLayout({
             ))}
           </ul>
         </nav>
-        
-
       </aside>
 
       {/* Main content */}
@@ -67,7 +66,7 @@ export default function AdminLayout({
               </>
             )}
           </div>
- </header>
+        </header>
         
         <div className={styles.content}>
           {children}

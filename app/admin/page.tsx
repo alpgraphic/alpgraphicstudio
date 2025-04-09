@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react';
 import styles from './admin.module.css';
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({
+  // Alt çizgi ekleyerek kullanılmayan değişkenleri işaretliyoruz
+  const [_stats, setStats] = useState({
     companies: 0,
     documents: 0,
     images: 0,
     visits: 0
   });
-  const [recentActivities, setRecentActivities] = useState([]);
+  const [_recentActivities, setRecentActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -71,5 +72,11 @@ export default function AdminDashboard() {
     return <div className={styles.errorContainer}>{error}</div>;
   }
 
-
+  // Return kısmını tamamlayalım
+  return (
+    <div className={styles.dashboardContainer}>
+      <h1>Admin Dashboard</h1>
+      <p>Hoş geldiniz!</p>
+    </div>
+  );
 }

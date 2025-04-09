@@ -331,15 +331,15 @@ export default function DocumentsPage() {
     return company?.name || 'Bilinmeyen Firma';
   };
 
-  // Tarihi formatla
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Tarih Bilgisi Yok';
-    try {
-      return new Date(dateString).toLocaleDateString('tr-TR');
-    } catch (e) {
-      return dateString;
-    }
-  };
+// Tarihi formatla
+const formatDate = (dateString) => {
+  if (!dateString) return 'Tarih Bilgisi Yok';
+  try {
+    return new Date(dateString).toLocaleDateString('tr-TR');
+  } catch {
+    return dateString;
+  }
+};
 
   return (
     <div className={styles.documentsContainer}>

@@ -26,105 +26,6 @@ interface Document {
   createdAt: string;
 }
 
-// Duyarlı PDF Görüntüleyici bileşeni
-const ResponsivePdfViewer = ({ pdfUrl }) => {
-  const [isMobile, setIsMobile] = useState(false);
-  const [loading, setLoading] = useState(true);
-  
-  // Ekran boyutunu izleme
-  useEffect(() => {
-    const checkDeviceWidth = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    // İlk yükleme kontrolü
-    checkDeviceWidth();
-    
-    // Boyut değişikliklerini izleme
-    window.addEventListener('resize', checkDeviceWidth);
-    
-    // PDF yükleme tamamlandığında
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000);
-    
-    // Temizleme
-    return () => {
-      window.removeEventListener('resize', checkDeviceWidth);
-      clearTimeout(timer);
-    };
-  }, []);
-
-  const normalizedPdfUrl = !pdfUrl ? '' : 
-    isMobile 
-      ? `${pdfUrl}#view=FitH&zoom=50&toolbar=0&navpanes=0&scrollbar=0` 
-      : `${pdfUrl}#view=FitH&toolbar=0&navpanes=0&statusbar=0&scrollbar=0`;
-
-  return (
-    <div className={styles.responsivePdfContainer}>
-      {loading && (
-        <div className={styles.pdfLoading}>
-          <div className={styles.spinner}></div>
-          <p>PDF yükleniyor...</p>
-        </div>
-      )}
-      
-      <iframe 
-        src={normalizedPdfUrl}
-        className={`${styles.responsivePdfFrame} ${loading ? styles.hidden : ''}`}
-        title="PDF Görüntüleyici"
-        frameBorder="0"
-        allowFullScreen={true}
-        onLoad={() => setLoading(false)}
-      />
-      
-      {/* Ek stil tanımları */}
-      <style jsx>{`
-        .${styles.responsivePdfContainer} {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .${styles.responsivePdfFrame} {
-          width: 100%;
-          height: 100%;
-          border: none;
-          transform-origin: top left;
-        }
-        
-        .${styles.pdfLoading} {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          background-color: #f0f2f5;
-          z-index: 10;
-        }
-        
-        .${styles.hidden} {
-          opacity: 0;
-        }
-        
-        @media (max-width: 768px) {
-          .${styles.responsivePdfFrame} {
-            width: 100%;
-            height: 100%;
-            transform: scale(0.7);
-            transform-origin: top left;
-          }
-        }
-      `}</style>
-    </div>
-  );
-};
-
 // Portfolyo Sayfası bileşeni
 const PortfolioPage = () => {
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -186,7 +87,7 @@ const PortfolioPage = () => {
         }
         
         setError(null);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Veri çekme hatası:', err);
         setError('Veriler yüklenirken bir hata oluştu.');
       } finally {
@@ -458,7 +359,7 @@ export default function Home() {
         }
   
         setPortfolioError(null);
-      } catch (err: any) {
+      } catch (err) {
         console.error('Veri çekme hatası:', err);
         setPortfolioError('Veriler yüklenirken bir hata oluştu.');
       } finally {
@@ -537,15 +438,6 @@ export default function Home() {
     };
   }, [isMobile, imageCount, introCompleted]);
   
-  // Arka plan fotoğraflarını sürekli döndürme (mobil için)
-  const startBackgroundLoop = () => {
-    const bgLoopInterval = setInterval(() => {
-      setBgIndex((prev) => (prev + 1) % imageCount);
-    }, 3000); // Her 3 saniyede bir fotoğraf değiştir
-    
-    return () => clearInterval(bgLoopInterval);
-  };
-  
   useEffect(() => {
     if (showMenu) {
       const interval = setInterval(() => {
@@ -581,18 +473,7 @@ export default function Home() {
   // Eğer intro tamamlandıysa ve mobil cihaz DEĞİLSE portfolyo sayfasını göster
   if (introCompleted && !isMobile) {
     return (
-      <PortfolioPage 
-        companies={companies}
-        documents={documents}
-        loading={portfolioLoading}
-        error={portfolioError}
-        handleCompanySelect={handleCompanySelect}
-        selectedCompany={selectedCompany}
-        setSelectedCompany={setSelectedCompany}
-        categories={categories}
-        activeFilter={activeFilter}
-        handleFilterChange={handleFilterChange}
-      />
+      <PortfolioPage />
     );
   }
   

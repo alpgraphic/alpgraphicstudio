@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Document from '@/models/Document';
 import mongoose from 'mongoose';
-import { randomUUID } from 'crypto';
 
 export async function GET(request) {
   await dbConnect();

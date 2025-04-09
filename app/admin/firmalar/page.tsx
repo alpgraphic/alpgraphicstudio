@@ -2,8 +2,19 @@
 
 import { useEffect, useState, useRef } from 'react';
 
+// Firma tipi için arayüz tanımlama
+interface Company {
+  _id: string;
+  name: string;
+  logo?: string;
+  cover?: string;
+  category?: string;
+  year?: string;
+  pdfUrl?: string;
+}
+
 export default function CompaniesPage() {
-  const [companies, setCompanies] = useState([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [companyName, setCompanyName] = useState('');
   const [companyLogo, setCompanyLogo] = useState('');
   const [companyCover, setCompanyCover] = useState('');
@@ -17,7 +28,7 @@ export default function CompaniesPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [companyToDelete, setCompanyToDelete] = useState(null);
+  const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
   
   const logoInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -160,7 +171,7 @@ export default function CompaniesPage() {
     }
   };
 
-  const handleEdit = (company) => {
+  const handleEdit = (company: Company) => {
     setCompanyName(company.name);
     setCompanyLogo(company.logo || '');
     setCompanyCover(company.cover || '');
@@ -197,7 +208,7 @@ export default function CompaniesPage() {
     }
   };
 
-  const confirmDelete = (company) => {
+  const confirmDelete = (company: Company) => {
     setCompanyToDelete(company);
     setShowDeleteConfirm(true);
   };
@@ -348,7 +359,7 @@ export default function CompaniesPage() {
             </p>
           ) : (
             <ul className="companies-ul">
-              {companies.map((company: any) => (
+              {companies.map((company: Company) => (
                 <li 
                   key={company._id} 
                   className="company-item"
