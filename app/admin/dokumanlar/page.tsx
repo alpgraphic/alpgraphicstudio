@@ -51,8 +51,8 @@ export default function DocumentsPage() {
         
         setError(null);
       } catch (err: any) {
-        setError('Veriler yüklenirken bir hata oluştu: ' + err.message);
-      }
+  setError('Veriler yüklenirken bir hata oluştu: ' + err.message);
+
         console.error('Veri çekme hatası:', err);
         setError('Veriler yüklenirken bir hata oluştu: ' + err.message);
       } finally {
