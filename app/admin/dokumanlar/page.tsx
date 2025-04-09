@@ -109,7 +109,7 @@ export default function DocumentsPage() {
   };
   
   // Dosya yükleme
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files.length > 0) {
       setFormData(prev => ({
         ...prev,
