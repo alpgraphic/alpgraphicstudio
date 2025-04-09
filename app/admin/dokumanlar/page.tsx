@@ -89,7 +89,7 @@ export default function DocumentsPage() {
   };
   
   // PDF düzenleme
-  const openEditModal = (pdf) => {
+  const openEditModal = (pdf: PDF) => {
     setSelectedPdf(pdf);
     setFormData({
       name: pdf.name || '',
