@@ -12,7 +12,7 @@ export default function DocumentsPage() {
   
   const [pdfs, setPdfs] = useState<PDF[]>([]);
   const [companies, setCompanies] = useState([]);
-  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [selectedPdf, setSelectedPdf] = useState<PDF | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCompany, setFilterCompany] = useState('');
