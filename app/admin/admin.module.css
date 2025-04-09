@@ -1,0 +1,695 @@
+/* Admin panel genel stilleri - tamamen ayrı bir modüldür */
+.adminContainer {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Sidebar stilleri */
+.sidebar {
+  width: 250px;
+  background-color: #1a1a1a;
+  color: #fff;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  z-index: 100;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.sidebarHeader {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoImage {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.toggleButton {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.navigation {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+}
+
+.navigation ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  gap: 0.75rem;
+}
+
+.navLink:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.navLink.active {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-left: 3px solid #3b82f6;
+}
+
+.navIcon {
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sidebarFooter {
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #3b82f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-weight: 600;
+}
+
+.userDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-weight: 600;
+  margin: 0;
+}
+
+.userRole {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+.logoutButton {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.logoutButton:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ana içerik alanı */
+.mainContent {
+  flex: 1;
+  margin-left: 250px;
+  transition: margin 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed ~ .mainContent {
+  margin-left: 70px;
+}
+
+.header {
+  background-color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.breadcrumbSeparator {
+  margin: 0 0.5rem;
+}
+
+.headerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.notificationButton, .profileButton {
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notificationButton:hover, .profileButton:hover {
+  background-color: #f5f5f5;
+}
+
+.content {
+  padding: 2rem;
+  flex: 1;
+}
+
+/* Dashboard stilleri */
+.dashboardContainer {
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+  font-weight: 600;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background-color: #f0f7ff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+}
+
+.statInfo h3 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.statInfo p {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Firmalar sayfası stilleri */
+.companiesContainer, .documentsContainer, .imagesContainer {
+  width: 100%;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.addButton {
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.addButton:hover {
+  background-color: #2563eb;
+}
+
+.filtersContainer {
+  display: flex;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.filterBox {
+  min-width: 200px;
+  max-width: 250px;
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+/* Firma Grid stilleri */
+.adminCompaniesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.adminCompanyCard {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.adminCompanyCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.adminCompanyLogo {
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.adminCompanyLogo img {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+}
+
+.adminCompanyInfo {
+  padding: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.adminCompanyInfo h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.adminCompanyMeta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.adminCompanyActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editButton, .deleteButton, .viewButton {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.editButton {
+  background-color: #f0f7ff;
+  color: #3b82f6;
+}
+
+.editButton:hover {
+  background-color: #e0efff;
+}
+
+.deleteButton {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.deleteButton:hover {
+  background-color: #fecaca;
+}
+
+.viewButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.viewButton:hover {
+  background-color: #e5e7eb;
+}
+
+/* Modal stilleri */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: #fff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  padding: 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalHeader h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.modalContent {
+  padding: 1.5rem;
+}
+
+.modalFooter {
+  padding: 1.5rem;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.cancelButton, .saveButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: none;
+}
+
+.cancelButton:hover {
+  background-color: #e5e7eb;
+}
+
+.saveButton {
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+}
+
+.saveButton:hover {
+  background-color: #2563eb;
+}
+
+/* Form stilleri */
+.companyForm, .documentForm, .imageForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.formInput, .formSelect, .formTextarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.formTextarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.fileUploader {
+  border: 2px dashed #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.uploadButton {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  background-color: #f0f7ff;
+  color: #3b82f6;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.uploadButton:hover {
+  background-color: #e0efff;
+}
+
+.uploadPreview {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* PDF Dökümanlar grid */
+.documentsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.documentCard {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.documentIcon {
+  display: flex;
+  justify-content: center;
+}
+
+.documentInfo {
+  flex: 1;
+}
+
+.documentName {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.documentMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.documentCompany {
+  font-size: 0.875rem;
+  color: #3b82f6;
+}
+
+.documentSize {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.documentDate {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.documentActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+/* Duyarlı (responsive) tasarım */
+@media (max-width: 768px) {
+  .adminCompaniesGrid, .documentsGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  .sidebar {
+    width: 200px;
+  }
+  
+  .sidebar.collapsed {
+    width: 60px;
+  }
+  
+  .mainContent {
+    margin-left: 200px;
+  }
+  
+  .sidebar.collapsed ~ .mainContent {
+    margin-left: 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .adminCompaniesGrid, .documentsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header {
+    padding: 1rem;
+  }
+  
+  .content {
+    padding: 1rem;
+  }
+  
+  .filtersContainer {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 70px;
+  }
+  
+  .sidebar:not(.collapsed) {
+    width: 200px;
+    position: absolute;
+    z-index: 1000;
+    height: 100vh;
+  }
+  
+  .mainContent {
+    margin-left: 70px;
+  }
+  
+  .sidebar.collapsed ~ .mainContent {
+    margin-left: 70px;
+  }
+}
