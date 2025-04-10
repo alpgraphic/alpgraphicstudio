@@ -17,6 +17,7 @@ export default function AdminLayout({
   const navItems = [
     { name: 'Firmalar', path: '/admin/firmalar', icon: '🏢' },
     { name: 'PDF Dokümanlar', path: '/admin/dokumanlar', icon: '📄' },
+    { name: 'Görseller', path: '/admin/gorseller', icon: '🖼️' },
   ];
 
   return (
