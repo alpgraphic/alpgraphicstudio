@@ -164,7 +164,7 @@
 
 /* Üst Navigasyon */
 .topNavigation {
-  height: 70px;
+  height: 1px;
   width: 100%;
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -173,7 +173,7 @@
 
 .navContainer {
   width: 100%;
-  max-width: 1600px;
+  max-width: 2000px;
   height: 100%;
   margin: 0 auto;
   padding: 0 30px;
@@ -198,7 +198,7 @@
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
-  padding-bottom: 5px;
+
 }
 
 .categoryNav::-webkit-scrollbar {
@@ -228,20 +228,6 @@
   color: white;
 }
 
-.adminButton {
-  background-color: #222;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 4px;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 600;
-  transition: background-color 0.3s ease;
-}
-
-.adminButton:hover {
-  background-color: #444;
-}
 
 /* Ana İçerik Alanı */
 .contentArea {

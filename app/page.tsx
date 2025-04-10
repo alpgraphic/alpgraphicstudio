@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './page.module.css';
 import { motion } from 'framer-motion';
+import Head from 'next/head';
 import HomePDFViewer from './components/HomePDFViewer';
 
 interface Category {
@@ -467,6 +468,9 @@ export default function Home() {
   
   return (
     <main className={styles.main}>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+      </Head>
       <section className={styles.fullscreen}>
         {/* Arka planda değişen görseller */}
         {bgIndex > 0 && (
