@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { UploadButton } from "@uploadthing/react";
 
 // Firma tipi için arayüz tanımlama
 interface Company {
@@ -24,23 +25,19 @@ export default function CompaniesPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
   
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
-
   useEffect(() => {
     fetchCompanies();
   }, []);
 
   const fetchCompanies = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`);      
-      const data = await res.json();
+      const companiesRes = await fetch('/api/companies');      
+      const data = await companiesRes.json(); // res yerine companiesRes kullanın
       if (data.success) {
         setCompanies(data.data);
       } else {
@@ -54,43 +51,6 @@ export default function CompaniesPage() {
     }
   };
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const xhr = new XMLHttpRequest();
-      
-      return new Promise<string>((resolve, reject) => {
-        xhr.upload.onprogress = (event) => {
-          if (event.lengthComputable) {
-            const percentComplete = Math.round((event.loaded / event.total) * 100);
-            setUploadProgress(percentComplete);
-          }
-        };
-
-        xhr.onload = async () => {
-          if (xhr.status === 200) {
-            const response = JSON.parse(xhr.responseText);
-            resolve(response.fileUrl);
-          } else {
-            reject(new Error('Dosya yüklenemedi'));
-          }
-        };
-
-        xhr.onerror = () => {
-          reject(new Error('Ağ hatası'));
-        };
-
-        xhr.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`, true);        
-        xhr.send(formData);
-      });
-    } catch (err) {
-      console.error(err);
-      throw err;
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!companyName.trim()) {
@@ -98,34 +58,19 @@ export default function CompaniesPage() {
       return;
     }
 
-    const logoFile = logoInputRef.current?.files?.[0];
-    const coverFile = coverInputRef.current?.files?.[0];
-
-    let logo = companyLogo;
-    let cover = companyCover;
-
     try {
       setUploading(true);
-      setUploadProgress(0);
-
-      if (logoFile) {
-        logo = await uploadFile(logoFile);
-      }
-
-      if (coverFile) {
-        cover = await uploadFile(coverFile);
-      }
 
       if (isEditing) {
         // Firma güncelleme - mevcut PUT API'sini kullan
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`, {          
+        const res = await fetch(`/api/companies`, {          
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             id: editingId,
             name: companyName, 
-            logo, 
-            cover,
+            logo: companyLogo, 
+            cover: companyCover,
             category: companyCategory,
             year: companyYear,
             pdfUrl: companyPdfUrl
@@ -134,6 +79,7 @@ export default function CompaniesPage() {
 
         const data = await res.json();
         if (data.success) {
+          alert("Firma başarıyla güncellendi!");
           resetForm();
           fetchCompanies();
         } else {
@@ -141,13 +87,13 @@ export default function CompaniesPage() {
         }
       } else {
         // Yeni firma ekleme
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`, {
+        const res = await fetch(`/api/companies`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             name: companyName, 
-            logo, 
-            cover,
+            logo: companyLogo, 
+            cover: companyCover,
             category: companyCategory,
             year: companyYear,
             pdfUrl: companyPdfUrl
@@ -156,6 +102,7 @@ export default function CompaniesPage() {
 
         const data = await res.json();
         if (data.success) {
+          alert("Firma başarıyla eklendi!");
           resetForm();
           fetchCompanies();
         } else {
@@ -167,7 +114,6 @@ export default function CompaniesPage() {
       setError(isEditing ? 'Firma güncellenirken hata oluştu.' : 'Firma eklenirken hata oluştu.');
     } finally {
       setUploading(false);
-      setUploadProgress(0);
     }
   };
 
@@ -196,6 +142,7 @@ export default function CompaniesPage() {
 
       const data = await res.json();
       if (data.success) {
+        alert("Firma başarıyla silindi!");
         fetchCompanies();
         setShowDeleteConfirm(false);
         setCompanyToDelete(null);
@@ -222,8 +169,6 @@ export default function CompaniesPage() {
     setCompanyPdfUrl('');
     setIsEditing(false);
     setEditingId('');
-    if (logoInputRef.current) logoInputRef.current.value = '';
-    if (coverInputRef.current) coverInputRef.current.value = '';
   };
 
   return (
@@ -244,32 +189,82 @@ export default function CompaniesPage() {
             />
           </div>
 
+          {/* Logo Yükleme - UploadThing */}
           <div>
-            <label>
-              Firma Logosu
-              {companyLogo && <span className="small-text"> (Mevcut logo var)</span>}
-            </label>
-            <input
-              type="file"
-              ref={logoInputRef}
-              accept="image/*"
-              className="form-input"
-              disabled={uploading}
-            />
+            <label>Firma Logosu</label>
+            {companyLogo ? (
+              <div className="uploaded-image-container">
+                <img 
+                  src={companyLogo} 
+                  alt="Firma Logosu" 
+                  className="uploaded-image-preview"
+                />
+                <div className="uploaded-image-actions">
+                  <button 
+                    type="button" 
+                    className="remove-image-button"
+                    onClick={() => setCompanyLogo('')}
+                  >
+                    Logoyu Kaldır
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="upload-container">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res.length > 0) {
+                      setCompanyLogo(res[0].url);
+                      alert("Logo başarıyla yüklendi");
+                    }
+                  }}
+                  onUploadError={(error) => {
+                    alert("Logo yüklenirken bir hata oluştu: " + error.message);
+                  }}
+                  className="ut-button-container"
+                />
+              </div>
+            )}
           </div>
 
+          {/* Kapak Resmi Yükleme - UploadThing */}
           <div>
-            <label>
-              Firma Kapak Resmi
-              {companyCover && <span className="small-text"> (Mevcut kapak resmi var)</span>}
-            </label>
-            <input
-              type="file"
-              ref={coverInputRef}
-              accept="image/*"
-              className="form-input"
-              disabled={uploading}
-            />
+            <label>Firma Kapak Resmi</label>
+            {companyCover ? (
+              <div className="uploaded-image-container">
+                <img 
+                  src={companyCover} 
+                  alt="Firma Kapak Resmi" 
+                  className="uploaded-image-preview cover-preview"
+                />
+                <div className="uploaded-image-actions">
+                  <button 
+                    type="button" 
+                    className="remove-image-button"
+                    onClick={() => setCompanyCover('')}
+                  >
+                    Kapak Resmini Kaldır
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="upload-container">
+                <UploadButton
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    if (res && res.length > 0) {
+                      setCompanyCover(res[0].url);
+                      alert("Kapak resmi başarıyla yüklendi");
+                    }
+                  }}
+                  onUploadError={(error) => {
+                    alert("Kapak resmi yüklenirken bir hata oluştu: " + error.message);
+                  }}
+                  className="ut-button-container"
+                />
+              </div>
+            )}
           </div>
 
           <div>
@@ -307,16 +302,6 @@ export default function CompaniesPage() {
               disabled={uploading}
             />
           </div>
-
-          {uploading && (
-            <div className="upload-progress-container">
-              <div 
-                className="upload-progress-bar" 
-                style={{ width: `${uploadProgress}%` }}
-              ></div>
-              <span className="upload-progress-text">{uploadProgress}%</span>
-            </div>
-          )}
 
           <div className="button-group">
             <button 
@@ -564,33 +549,6 @@ export default function CompaniesPage() {
           background-color: #e53935;
         }
         
-        .upload-progress-container {
-          width: 100%;
-          height: 20px;
-          background-color: #e0e0e0;
-          border-radius: 10px;
-          margin-bottom: 15px;
-          position: relative;
-          overflow: hidden;
-        }
-        
-        .upload-progress-bar {
-          height: 100%;
-          background-color: #4caf50;
-          border-radius: 10px;
-          transition: width 0.3s ease;
-        }
-        
-        .upload-progress-text {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          color: #fff;
-          font-size: 12px;
-          text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-        }
-        
         .small-text {
           font-size: 12px;
           color: #666;
@@ -657,6 +615,74 @@ export default function CompaniesPage() {
           height: 30px;
           animation: spin 1s linear infinite;
           margin: 20px auto;
+        }
+        
+        .upload-container {
+          margin-bottom: 15px;
+          width: 100%;
+        }
+        
+        .uploaded-image-container {
+          margin-bottom: 15px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .uploaded-image-preview {
+          max-width: 200px;
+          max-height: 200px;
+          object-fit: contain;
+          margin-bottom: 10px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+          padding: 5px;
+          background-color: #fff;
+        }
+        
+        .cover-preview {
+          max-width: 300px;
+        }
+        
+        .uploaded-image-actions {
+          display: flex;
+          justify-content: center;
+          width: 100%;
+        }
+        
+        .remove-image-button {
+          padding: 6px 12px;
+          background-color: #f44336;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        
+        .remove-image-button:hover {
+          background-color: #d32f2f;
+        }
+
+        /* UploadThing bileşeni için özel stiller */
+        :global(.ut-button-container) {
+          width: 100% !important;
+        }
+        
+        :global(.ut-button) {
+          background-color: rgb(31, 31, 31) !important;
+          color: white !important;
+          font-size: 14px !important;
+          border-radius: 4px !important;
+          padding: 10px !important;
+          border: none !important;
+          cursor: pointer !important;
+          width: 100% !important;
+        }
+        
+        :global(.ut-button:hover) {
+          background-color: #357abf !important;
         }
         
         @keyframes spin {

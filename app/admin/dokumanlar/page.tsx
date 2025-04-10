@@ -2,12 +2,17 @@
 
 import { useState, useRef, useEffect } from 'react';
 import styles from '../admin.module.css';
+import { UploadButton } from "@uploadthing/react"; // UploadThing bileşenini içe aktar
 
 export default function DocumentsPage() {
   type PDF = {
+    _id?: string;
     name: string;
     companyId?: string;
-    // başka özellikler varsa buraya ekle
+    filename?: string;
+    size?: string;
+    createdAt?: string;
+    uploadDate?: string;
   };
   
   const [pdfs, setPdfs] = useState<PDF[]>([]);
@@ -24,14 +29,13 @@ export default function DocumentsPage() {
     name: string;
     companyId: string;
     file: File | null;
+    fileUrl: string | null; // PDF dosyasının URL'sini saklamak için
   }>({
     name: '',
     companyId: '',
-    file: null
+    file: null,
+    fileUrl: null
   });
-  
-  // Dosya referansı
-  const fileInputRef = useRef(null);
   
   // Verileri API'den çek
   useEffect(() => {
@@ -40,7 +44,7 @@ export default function DocumentsPage() {
         setLoading(true);
         
         // Firmaları çek
-        const companiesRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`);
+        const companiesRes = await fetch('/api/companies');
         const companiesData = await companiesRes.json();
         
         if (companiesData.success) {
@@ -50,7 +54,8 @@ export default function DocumentsPage() {
         }
         
         // Dokümanları çek
-        const documentsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`);
+// Doküman sayısını çekme kısmını da benzer şekilde değiştirin
+const documentsRes = await fetch('/api/documents');
         const documentsData = await documentsRes.json();
         
         if (documentsData.success) {
@@ -61,8 +66,6 @@ export default function DocumentsPage() {
         
         setError(null);
       } catch (err: any) {
-  setError('Veriler yüklenirken bir hata oluştu: ' + err.message);
-
         console.error('Veri çekme hatası:', err);
         setError('Veriler yüklenirken bir hata oluştu: ' + err.message);
       } finally {
@@ -87,7 +90,8 @@ export default function DocumentsPage() {
     setFormData({
       name: '',
       companyId: '',
-      file: null
+      file: null,
+      fileUrl: null
     });
     setIsModalOpen(true);
   };
@@ -98,7 +102,8 @@ export default function DocumentsPage() {
     setFormData({
       name: pdf.name || '',
       companyId: pdf.companyId || '',
-      file: null
+      file: null,
+      fileUrl: pdf.filename || null
     });
     setIsModalOpen(true);
   };
@@ -112,16 +117,6 @@ export default function DocumentsPage() {
     }));
   };
   
-  // Dosya yükleme
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFormData(prev => ({
-        ...prev,
-        file: e.target.files[0]
-      }));
-    }
-  };
-  
   // PDF silme
   const deletePdf = async (id) => {
     if (!id) {
@@ -131,7 +126,7 @@ export default function DocumentsPage() {
     
     if (confirm('Bu PDF dosyasını silmek istediğinize emin misiniz?')) {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents?id=${id}`, {
+        const res = await fetch(`/api/documents?id=${id}`, {
           method: 'DELETE'
         });
         
@@ -140,13 +135,13 @@ export default function DocumentsPage() {
         if (data.success) {
           // Başarılı silme işleminden sonra listeyi güncelle
           setPdfs(prev => prev.filter(pdf => pdf._id !== id));
-          alert('Doküman başarıyla silindi!');
+          alert("Doküman başarıyla silindi!");
         } else {
-          alert('Silme işlemi başarısız oldu: ' + (data.message || 'Bilinmeyen hata'));
+          alert("Silme işlemi başarısız oldu: " + (data.message || "Bilinmeyen hata"));
         }
       } catch (err) {
         console.error('Silme hatası:', err);
-        alert('Silme işlemi sırasında bir hata oluştu: ' + err.message);
+        alert("Silme işlemi sırasında bir hata oluştu");
       }
     }
   };
@@ -159,7 +154,7 @@ export default function DocumentsPage() {
   // PDF önizleme
   const openPdfPreview = (pdfUrl) => {
     if (!pdfUrl) {
-      alert('PDF URL bulunamadı!');
+      alert("PDF URL bulunamadı!");
       return;
     }
     
@@ -173,131 +168,81 @@ export default function DocumentsPage() {
     setPreviewPdfUrl('');
   };
   
-  // Dosya seçim diyaloğunu aç
-  const triggerFileUpload = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-  
   // PDF'i kaydet
   const savePdf = async () => {
     // Form validasyonu
     if (!formData.name) {
-      alert('Lütfen PDF adını girin.');
+      alert("Lütfen PDF adını girin.");
       return;
     }
     
     if (!formData.companyId) {
-      alert('Lütfen bir firma seçin.');
+      alert("Lütfen bir firma seçin.");
       return;
     }
     
-    if (!selectedPdf && !formData.file) {
-      alert('Lütfen bir PDF dosyası seçin.');
+    // Dosya kontrolü - ya mevcut dosya URL'si ya da yeni bir dosya URL'si olmalı
+    if (!selectedPdf?.filename && !formData.fileUrl) {
+      alert("Lütfen bir PDF dosyası yükleyin.");
       return;
     }
     
     try {
-      let fileUrl = selectedPdf ? selectedPdf.filename : null;
+      // PDF verilerini hazırla
+      const pdfData = {
+        name: formData.name,
+        companyId: formData.companyId,
+        filename: formData.fileUrl || selectedPdf?.filename, // UploadThing'den gelen URL veya mevcut URL
+        // Dosya boyutunu UploadThing sonuçlarından alabiliriz veya varsayılan değer kullanabiliriz
+        size: formData.file ? `${(formData.file.size / (1024 * 1024)).toFixed(2)} MB` : (selectedPdf?.size || 'Boyut bilgisi yok')
+      };
       
-      // Yeni dosya yüklendiyse
-      if (formData.file) {
-        const fileForm = new FormData();
-        fileForm.append('file', formData.file);
-        fileForm.append('companyId', formData.companyId);
-        fileForm.append('name', formData.name);
-        
-        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`, {
-          method: 'POST',
-          body: fileForm
+      if (selectedPdf) {
+        // Mevcut PDF'i güncelle
+        const updateRes = await fetch(`/api/documents`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: selectedPdf._id,
+            ...pdfData
+          })
         });
         
-        if (!uploadRes.ok) {
-          alert(`Yükleme başarısız: ${uploadRes.status} ${uploadRes.statusText}`);
-          return;
+        if (!updateRes.ok) {
+          throw new Error(`Güncelleme başarısız: ${updateRes.status} ${updateRes.statusText}`);
         }
         
-        const uploadData = await uploadRes.json();
+        const updateData = await updateRes.json();
         
-        if (!uploadData.success) {
-          alert('Dosya yüklenemedi: ' + (uploadData.error || 'Bilinmeyen hata'));
-          return;
-        }
-        
-        fileUrl = uploadData.fileUrl;
-        
-        // Doküman doğrudan oluşturulduysa, listeyi güncelleyip modalı kapat
-        if (uploadData.document) {
-          setPdfs(prev => [...prev, uploadData.document]);
-          closeModal();
-          alert('PDF başarıyla yüklendi!');
-          return;
-        }
-      }
-      
-      // Eğer upload/document otomatik oluşturulmadıysa, manuel oluştur
-      if (!uploadData?.document) {
-        // PDF verilerini kaydet
-        const pdfData = {
-          name: formData.name,
-          companyId: formData.companyId,
-          filename: fileUrl,
-          size: formData.file ? `${(formData.file.size / (1024 * 1024)).toFixed(2)} MB` : (selectedPdf ? selectedPdf.size : '0 MB')
-        };
-        
-        // Düzenleme veya yeni ekleme
-        if (selectedPdf) {
-          // Mevcut PDF'i güncelle
-          const updateRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              id: selectedPdf._id,
-              ...pdfData
-            })
-          });
-          
-          if (!updateRes.ok) {
-            alert(`Güncelleme başarısız: ${updateRes.status} ${updateRes.statusText}`);
-            return;
-          }
-          
-          const updateData = await updateRes.json();
-          
-          if (updateData.success) {
-            // Listeyi güncelle
-            setPdfs(prev => prev.map(pdf => 
-              pdf._id === selectedPdf._id ? updateData.data : pdf
-            ));
-            alert('PDF başarıyla güncellendi!');
-          } else {
-            alert('Güncelleme başarısız: ' + (updateData.message || 'Bilinmeyen hata'));
-            return;
-          }
+        if (updateData.success) {
+          // Listeyi güncelle
+          setPdfs(prev => prev.map(pdf => 
+            pdf._id === selectedPdf._id ? updateData.data : pdf
+          ));
+          alert("PDF başarıyla güncellendi!");
         } else {
-          // Yeni PDF ekle
-          const createRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(pdfData)
-          });
-          
-          if (!createRes.ok) {
-            alert(`Ekleme başarısız: ${createRes.status} ${createRes.statusText}`);
-            return;
-          }
-          
-          const createData = await createRes.json();
-          
-          if (createData.success) {
-            // Listeye yeni PDF'i ekle
-            setPdfs(prev => [...prev, createData.data]);
-            alert('PDF başarıyla eklendi!');
-          } else {
-            alert('Ekleme başarısız: ' + (createData.message || 'Bilinmeyen hata'));
-            return;
-          }
+          throw new Error('Güncelleme başarısız: ' + (updateData.message || 'Bilinmeyen hata'));
+        }
+      } else {
+        // Yeni PDF ekle
+        const createRes = await fetch(`/api/documents`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pdfData)
+        });
+        
+        if (!createRes.ok) {
+          throw new Error(`Ekleme başarısız: ${createRes.status} ${createRes.statusText}`);
+        }
+        
+        const createData = await createRes.json();
+        
+        if (createData.success) {
+          // Listeye yeni PDF'i ekle
+          setPdfs(prev => [...prev, createData.data]);
+          alert("PDF başarıyla eklendi!");
+        } else {
+          throw new Error('Ekleme başarısız: ' + (createData.message || 'Bilinmeyen hata'));
         }
       }
       
@@ -306,7 +251,7 @@ export default function DocumentsPage() {
       
     } catch (err) {
       console.error('Kaydetme hatası:', err);
-      alert('Kaydetme işlemi sırasında bir hata oluştu: ' + err.message);
+      alert(err.message || "Kaydetme işlemi sırasında bir hata oluştu");
     }
   };
 
@@ -343,15 +288,15 @@ export default function DocumentsPage() {
     return company?.name || 'Bilinmeyen Firma';
   };
 
-// Tarihi formatla
-const formatDate = (dateString) => {
-  if (!dateString) return 'Tarih Bilgisi Yok';
-  try {
-    return new Date(dateString).toLocaleDateString('tr-TR');
-  } catch {
-    return dateString;
-  }
-};
+  // Tarihi formatla
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Tarih Bilgisi Yok';
+    try {
+      return new Date(dateString).toLocaleDateString('tr-TR');
+    } catch {
+      return dateString;
+    }
+  };
 
   return (
     <div className={styles.documentsContainer}>
@@ -488,31 +433,45 @@ const formatDate = (dateString) => {
                     PDF Dosyası 
                     {!selectedPdf && <span className={styles.requiredField}>*</span>}
                   </label>
-                  <div className={styles.fileUploader}>
-                    <div className={styles.uploadPreview}>
-                      {formData.file ? (
+                  
+                  {/* UploadThing Entegrasyonu */}
+                  <div className={styles.uploadthingContainer}>
+                    {formData.fileUrl || selectedPdf?.filename ? (
+                      <div className={styles.uploadedFileInfo}>
                         <p className={styles.currentFile}>
-                          Seçilen dosya: {formData.file.name} ({(formData.file.size / (1024 * 1024)).toFixed(2)} MB)
+                          {formData.fileUrl ? "Yeni dosya yüklendi" : "Mevcut dosya"}: 
+                          {formData.fileUrl || selectedPdf?.filename?.split('/').pop()}
                         </p>
-                      ) : selectedPdf?.filename ? (
-                        <p className={styles.currentFile}>
-                          Mevcut dosya: {selectedPdf.filename.split('/').pop()}
-                        </p>
-                      ) : (
-                        <p>Henüz dosya seçilmedi.</p>
-                      )}
-                    </div>
-                    <div className={styles.uploadButton} onClick={triggerFileUpload}>
-                      <span>PDF Dosyası Yükle</span>
-                      <input 
-                        type="file" 
-                        accept=".pdf"
-                        style={{ display: 'none' }}
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        required={!selectedPdf}
+                        <button 
+                          type="button"
+                          className={styles.removeFileButton}
+                          onClick={() => setFormData({...formData, fileUrl: null})}
+                        >
+                          Dosyayı Kaldır
+                        </button>
+                      </div>
+                    ) : (
+                      <UploadButton
+                        endpoint="pdfUploader"
+                        onClientUploadComplete={(res) => {
+                          // Yükleme tamamlandığında
+                          if (res && res.length > 0) {
+                            setFormData({
+                              ...formData, 
+                              fileUrl: res[0].ufsUrl,
+                              file: new File([], res[0].name, { type: 'application/pdf' })
+                            });
+                            
+                            alert("PDF dosyası başarıyla yüklendi");
+                          }
+                        }}
+                        onUploadError={(error) => {
+                          // Yükleme hatası
+                          alert("PDF yüklenirken bir hata oluştu: " + error.message);
+                        }}
+                        className={styles.uploadButton}
                       />
-                    </div>
+                    )}
                   </div>
                 </div>
               </form>

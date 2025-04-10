@@ -22,7 +22,8 @@ export default function AdminDashboard() {
         setLoading(true);
         
         // Firma sayısını çek
-        const companiesRes = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/companies`);
+        const companiesRes = await fetch('/api/companies');
+
         const companiesData = await companiesRes.json();
         
         // Doküman sayısını çek

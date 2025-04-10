@@ -5,6 +5,7 @@ import styles from './page.module.css';
 import { motion } from 'framer-motion';
 
 
+
 interface Category {
   id: string;
   name: string;

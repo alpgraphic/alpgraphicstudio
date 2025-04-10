@@ -9,16 +9,20 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@uploadthing/react": "^7.3.0",
+    "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^3.0.2",
     "framer-motion": "^12.6.3",
     "iron-session": "^8.0.4",
     "mongoose": "^8.13.2",
     "next": "15.2.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "uploadthing": "^7.6.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@shadcn/ui": "^0.0.4",
     "@types/node": "^22.14.0",
     "@types/react": "^19",
     "eslint": "^9.24.0",
