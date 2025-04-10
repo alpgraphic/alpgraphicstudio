@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from '../admin.module.css';
 import { UploadButton } from "@uploadthing/react"; // UploadThing bileşenini içe aktar
+import PDFViewer from '../../components/PDFViewer';
 
 export default function DocumentsPage() {
   type PDF = {
@@ -484,24 +485,13 @@ const documentsRes = await fetch('/api/documents');
         </div>
       )}
       
-      {/* PDF Önizleme Modal */}
-      {isPdfPreviewOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal} style={{ width: '90%', height: '90%' }}>
-            <div className={styles.modalHeader}>
-              <h2>PDF Önizleme</h2>
-              <button className={styles.closeButton} onClick={closePdfPreview}>×</button>
-            </div>
-            <div className={styles.modalContent} style={{ flex: 1, padding: 0 }}>
-              <iframe 
-                src={previewPdfUrl} 
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                title="PDF Önizleme"
-              />
-            </div>
-          </div>
-        </div>
-      )}
+{/* PDF Önizleme Modal */}
+{isPdfPreviewOpen && (
+  <PDFViewer 
+    pdfUrl={previewPdfUrl} 
+    onClose={closePdfPreview} 
+  />
+)}
     </div>
   );
 }

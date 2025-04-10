@@ -3,8 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import styles from './page.module.css';
 import { motion } from 'framer-motion';
-
-
+import HomePDFViewer from './components/HomePDFViewer';
 
 interface Category {
   id: string;
@@ -35,11 +34,29 @@ const PortfolioPage = () => {
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([
     // Sadece istediğiniz kategorileri bırakın
     { id: 'kurumsal-kimlik', name: 'Kurumsal Kimlik' },
     { id: 'logo-tasarimi', name: 'Logo Tasarımı' }
   ]);
+
+  // Mobil cihaz tespiti
+  useEffect(() => {
+    const checkDeviceType = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // İlk yükleme kontrolü
+    checkDeviceType();
+    
+    // Ekran boyutu değişimini izleme
+    window.addEventListener('resize', checkDeviceType);
+    
+    return () => {
+      window.removeEventListener('resize', checkDeviceType);
+    };
+  }, []);
 
   // Verileri API'den çek
   useEffect(() => {
@@ -152,12 +169,6 @@ const PortfolioPage = () => {
     );
   }
 
-  // PDF URL'ini parametrelerle birlikte hazırla
-  const preparePdfUrl = (url: string) => {
-    if (!url) return '';
-    return `${url}#view=FitH&navpanes=0&toolbar=0&statusbar=0&scrollbar=0`;
-  };
-
   return (
     <div className={styles.fullscreenPortfolio}>
       {/* Ana menü ve navigasyon bar */}
@@ -178,8 +189,6 @@ const PortfolioPage = () => {
               </button>
             ))}
           </div>
-          
-
         </div>
       </div>
 
@@ -259,24 +268,14 @@ const PortfolioPage = () => {
             {/* PDF görüntüleyici - Güncellenmiş */}
             <div className={styles.embeddedPdfViewer}>
               {latestDocument ? (
-                <iframe 
-                  src={preparePdfUrl(latestDocument.filename)}
-                  className={styles.pdfFrame}
-                  title={`${selectedCompanyData?.name || 'Firma'} PDF`}
-                  frameBorder="0"
-                  scrolling="no"
-                  seamless="seamless"
-                  allowFullScreen={true}
+                <HomePDFViewer 
+                  pdfUrl={latestDocument.filename}
+                  companyName={selectedCompanyData?.name || 'Firma'}
                 />
               ) : selectedCompanyData?.pdfUrl ? (
-                <iframe 
-                  src={preparePdfUrl(selectedCompanyData.pdfUrl)}
-                  className={styles.pdfFrame}
-                  title={`${selectedCompanyData.name} PDF`}
-                  frameBorder="0"
-                  scrolling="no"
-                  seamless="seamless"
-                  allowFullScreen={true}
+                <HomePDFViewer 
+                  pdfUrl={selectedCompanyData.pdfUrl}
+                  companyName={selectedCompanyData.name}
                 />
               ) : (
                 <div className={styles.noPdfMessage}>
@@ -299,7 +298,6 @@ export default function Home() {
   const [activeItemIndex, setActiveItemIndex] = useState<number>(0);
   const [introCompleted, setIntroCompleted] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [showMobileMessage, setShowMobileMessage] = useState<boolean>(false);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
@@ -408,21 +406,12 @@ export default function Home() {
     const timer4 = setTimeout(() => {
       const bgInterval = setInterval(() => {
         setBgIndex((prev) => {
-          // İlk fotoğraf geçişinde, mobil cihazdaysak mesajı göster
-          if (prev === 0 && isMobile) {
-            setShowMobileMessage(true);
-          }
-          
           if (prev + 1 >= imageCount) {
             clearInterval(bgInterval);
             setShowLogo(false);
             
-            // Mobil cihaz değilse menüyü göster
-            if (!isMobile) {
-              setShowMenu(true);
-            } else if (!introCompleted) {
-              setIntroCompleted(true); // intro'yu tamamla
-            }
+            // Mobil cihaz olup olmadığına bakmaksızın menüyü göster
+            setShowMenu(true);
             
             return prev;
           }
@@ -437,7 +426,7 @@ export default function Home() {
       clearTimeout(timer2);
       clearTimeout(timer4);
     };
-  }, [isMobile, imageCount, introCompleted]);
+  }, [imageCount]);
   
   useEffect(() => {
     if (showMenu) {
@@ -451,10 +440,8 @@ export default function Home() {
                 setShowMenu(false);
                 
                 setTimeout(() => {
-                  // Mobil cihaz değilse intro'yu tamamla
-                  if (!isMobile) {
-                    setIntroCompleted(true);
-                  }
+                  // Mobil cihaz veya masaüstü, intro'yu tamamla
+                  setIntroCompleted(true);
                 }, 500);
               }, 1000);
               
@@ -469,10 +456,10 @@ export default function Home() {
       
       return () => clearInterval(interval);
     }
-  }, [showMenu, services.length, isMobile]);
+  }, [showMenu, services.length]);
   
-  // Eğer intro tamamlandıysa ve mobil cihaz DEĞİLSE portfolyo sayfasını göster
-  if (introCompleted && !isMobile) {
+  // Eğer intro tamamlandıysa portfolyo sayfasını göster (mobil veya masaüstü farketmez)
+  if (introCompleted) {
     return (
       <PortfolioPage />
     );
@@ -517,25 +504,9 @@ export default function Home() {
             />
           </motion.div>
         )}
-
         
-        {/* Mobil bilgi mesajı - fotoğraflar görünmeye başladığında */}
-        {isMobile && showMobileMessage && (
-          <motion.div
-            className={styles.mobileInfo}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-          >
-
-            <p className={styles.mobileText}>
-              Web sitemizin tam deneyimi için lütfen masaüstü bir cihaz kullanın.
-            </p>
-          </motion.div>
-        )}
-        
-        {/* SUNUM - Sadece masaüstünde */}
-        {showMenu && !isMobile && (
+        {/* SUNUM - hem masaüstü hem de mobil için */}
+        {showMenu && (
           <motion.section 
             className={styles.menu}
             initial={{ opacity: 0 }}
