@@ -2,12 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   eslint: {
-    // Build sırasında ESLint kontrolünü devre dışı bırak
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Build sırasında TypeScript hatalarını görmezden gel
     ignoreBuildErrors: true,
+  },
+  env: {
+    NEXT_PUBLIC_BASE_URL: "https://sunum.alpgraphicstudio.com",
   },
 };
 

@@ -39,7 +39,7 @@ export default function CompaniesPage() {
 
   const fetchCompanies = async () => {
     try {
-      const res = await fetch('/api/companies');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`);      
       const data = await res.json();
       if (data.success) {
         setCompanies(data.data);
@@ -82,7 +82,7 @@ export default function CompaniesPage() {
           reject(new Error('Ağ hatası'));
         };
 
-        xhr.open('POST', '/api/upload', true);
+        xhr.open('POST', `${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`, true);        
         xhr.send(formData);
       });
     } catch (err) {
@@ -118,7 +118,7 @@ export default function CompaniesPage() {
 
       if (isEditing) {
         // Firma güncelleme - mevcut PUT API'sini kullan
-        const res = await fetch('/api/companies', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`, {          
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -141,7 +141,7 @@ export default function CompaniesPage() {
         }
       } else {
         // Yeni firma ekleme
-        const res = await fetch('/api/companies', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -190,7 +190,7 @@ export default function CompaniesPage() {
     
     try {
       // Mevcut DELETE API'sini kullan (query parameter ile)
-      const res = await fetch(`/api/companies?id=${companyToDelete._id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies?id=${companyToDelete._id}`, {        
         method: 'DELETE',
       });
 
