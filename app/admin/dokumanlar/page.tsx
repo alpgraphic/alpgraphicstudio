@@ -40,7 +40,7 @@ export default function DocumentsPage() {
         setLoading(true);
         
         // Firmaları çek
-        const companiesRes = await fetch('/api/companies');
+        const companiesRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies`);
         const companiesData = await companiesRes.json();
         
         if (companiesData.success) {
@@ -50,7 +50,7 @@ export default function DocumentsPage() {
         }
         
         // Dokümanları çek
-        const documentsRes = await fetch('/api/documents');
+        const documentsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`);
         const documentsData = await documentsRes.json();
         
         if (documentsData.success) {
@@ -131,7 +131,7 @@ export default function DocumentsPage() {
     
     if (confirm('Bu PDF dosyasını silmek istediğinize emin misiniz?')) {
       try {
-        const res = await fetch(`/api/documents?id=${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents?id=${id}`, {
           method: 'DELETE'
         });
         
@@ -208,7 +208,7 @@ export default function DocumentsPage() {
         fileForm.append('companyId', formData.companyId);
         fileForm.append('name', formData.name);
         
-        const uploadRes = await fetch('/api/upload', {
+        const uploadRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/upload`, {
           method: 'POST',
           body: fileForm
         });
@@ -249,7 +249,7 @@ export default function DocumentsPage() {
         // Düzenleme veya yeni ekleme
         if (selectedPdf) {
           // Mevcut PDF'i güncelle
-          const updateRes = await fetch(`/api/documents`, {
+          const updateRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -277,7 +277,7 @@ export default function DocumentsPage() {
           }
         } else {
           // Yeni PDF ekle
-          const createRes = await fetch('/api/documents', {
+          const createRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/documents`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(pdfData)
