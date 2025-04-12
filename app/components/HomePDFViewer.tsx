@@ -55,6 +55,10 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
     };
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [pdfUrl]);
+
 
 
   // PDF yükleme işleyicileri
