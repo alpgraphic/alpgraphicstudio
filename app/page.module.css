@@ -1,4 +1,18 @@
-/* Ana sayfa için mevcut CSS stilleri korunuyor */
+
+
+.pdf-navigation-button {
+  background-color: #333 !important;
+  color: white !important;
+}
+
+.pdf-navigation-button:hover {
+  background-color: #444 !important;
+}
+
+.pdf-navigation-button:disabled {
+  background-color: #e2e8f0 !important;
+  color: #718096 !important;
+}/* Ana sayfa için mevcut CSS stilleri korunuyor */
 .main {
   width: 100%;
   min-height: 100vh;
@@ -91,6 +105,7 @@
   filter: blur(4px);
   transition: all 1s ease;
   white-space: nowrap;
+  
 
 }
 
@@ -116,6 +131,7 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
+  
 }
 
 /* Mobil özel stiller */
@@ -162,13 +178,16 @@
   overflow: hidden;
 }
 
-/* Üst Navigasyon */
+/* Header için güncellenen stiller */
 .topNavigation {
-  height: 1px;
+  height: 80px;  /* 1px'den 80px'e yükseltildi */
   width: 100%;
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   z-index: 10;
+  position: sticky;
+  top: 0;
+  
 }
 
 .navContainer {
@@ -180,6 +199,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
 }
 
 .logoArea {
@@ -188,21 +208,26 @@
 }
 
 .navLogo {
-  height: 40px;
+  height: 25px;
   width: auto;
+  filter: brightness(0); /* Logo rengini siyah yapar */
 }
 
 .categoryNav {
   display: flex;
-  gap: 15px;
+  gap: 20px;  /* Biraz daha fazla boşluk */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
-
+  padding: 10px 0;  /* Dikey boşluk eklendi */
+  flex-wrap: nowrap;
+  
+    /* Kategorilerin aynı satırda kalmasını sağlar */
 }
 
 .categoryNav::-webkit-scrollbar {
   display: none; /* Chrome, Safari ve Opera */
+  
 }
 
 .categoryButton {
@@ -213,9 +238,10 @@
   font-weight: 600;
   color: #555;
   cursor: pointer;
-  border-radius: 20px;
+  border-radius: 5px;
   transition: all 0.3s ease;
   white-space: nowrap;
+  
   min-width: fit-content;
 }
 
@@ -224,7 +250,7 @@
 }
 
 .activeCategory {
-  background-color: #000;
+  background-color: #111;
   color: white;
 }
 
@@ -235,9 +261,11 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;  /* Üstten başla */
   align-items: center;
-  padding: 30px;
+  margin-top: 0px;  /* Header ile içerik arasında biraz boşluk */
+  overflow-y: auto; 
+   /* İçerik çok ise kaydırma çubuğu göster */
 }
 
 /* Firma Grid Görünümü */
@@ -248,6 +276,7 @@
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;
+  
 }
 
 .companyBox {
@@ -258,17 +287,20 @@
   background-color: white;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  
 }
 
 .companyBox:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+  
 }
 
 .companyBoxInner {
   display: flex;
   flex-direction: column;
   height: 100%;
+  
 }
 
 .companyLogoArea {
@@ -278,11 +310,13 @@
   align-items: center;
   overflow: hidden;
   position: relative;
+  
 }
 
 .companyLogoArea img {
   max-height: 110%;
   object-fit: contain;
+  
 }
 
 .companyBoxFooter {
@@ -294,6 +328,7 @@
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 5px 0;
+  
 }
 
 .companyMeta {
@@ -314,18 +349,23 @@
 /* PDF Görüntüleme Ekranı */
 .pdfViewerContainer {
   width: 100%;
-  height: calc(100vh - 70px);
+  height: calc(100vh - 90px);  /* 70px yerine 90px - header'ın yeni boyutuna göre */
   display: flex;
   flex-direction: column;
 }
 
 .companyNavigation {
-  padding: 15px 30px;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #f2f2f2;
-  border-bottom: 1px solid #e0e0e0;
+  background-color: #e7e7e7;
+  border-bottom: none;
+  height: 60px; /* Header ile aynı yükseklikte olması için */
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+  border-radius: 5px;
+  
+  
 }
 
 .backToGridButton {
@@ -334,28 +374,30 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
   cursor: pointer;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: 4px;
   transition: all 0.2s ease;
 }
 
 .backToGridButton:hover {
-  background-color: #e0e0e0;
+  background-color: #f0f0f0;
 }
 
 .companySwitcher {
   display: flex;
-  gap: 5px;
+  gap: 10px;
   overflow-x: auto;
   white-space: nowrap;
   padding: 5px;
   max-width: 70%; /* Çok fazla firma olduğunda taşmaması için */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none; /* Firefox */
+  height: 50px; /* Yüksekliği ayarlandı */
+  align-items: center; /* Dikey olarak ortalandı */
 }
 
 .companySwitcher::-webkit-scrollbar {
@@ -365,21 +407,25 @@
 .companyTab {
   background: none;
   border: none;
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: 10px 18px;
+  font-size: 15px;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
   min-width: fit-content;
+  height: 40px; /* Yükseklik eklendi */
+  display: flex;
+  align-items: center;
+  color: #555;
 }
 
 .companyTab:hover {
-  background-color: #e0e0e0;
+  background-color: #f0f0f0;
 }
 
 .activeCompanyTab {
-  background-color: #333;
+  background-color: #111;
   color: white;
 }
 
@@ -395,7 +441,7 @@
   width: 100%;
   height: 100%;
   border: none;
-.display: block;
+  display: block;
 }
 
 /* Newly added styles */
@@ -406,7 +452,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-
 }
 
 .autoWhiteLogo {
@@ -420,7 +465,6 @@
 .logoBackground {
   position: absolute;
   filter: brightness(40%);
-
 }
 
 .pdfDocument {
@@ -434,4 +478,137 @@
   border-radius: 4px;
   background-color: white;
   margin-top: 10px;
+}
+
+/* Mobil görünüm için responsive düzenlemeler */
+@media (max-width: 768px) {
+  /* Header düzenlemeleri */
+  .topNavigation {
+    height: auto;
+    padding: 15px 0;
+    
+  }
+  
+  .navContainer {
+    flex-direction: column;
+    gap: 15px;
+    padding: 0 20px;
+    
+  }
+  
+  .logoArea {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .navLogo {
+    height: 35px;
+  }
+  
+  .categoryNav {
+    width: 100%;
+    justify-content: center;
+    padding-bottom: 5px;
+    overflow-x: auto;
+  }
+  
+  .categoryButton {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+  
+  /* PDF Görüntüleme Ekranı için mobil uyarlaması */
+  .pdfViewerContainer {
+    height: calc(100vh - 140px); /* Mobil header daha yüksek olabilir */
+  }
+  
+  .companyNavigation {
+    flex-direction: column;
+    height: auto;
+    padding: 15px;
+    gap: 15px;
+    background-color: #f8f9fa;
+  }
+  
+  .companySwitcher {
+    max-width: 100%;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 5px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+  
+  .companyTab {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px 12px;
+    min-width: 0;
+    justify-content: center;
+    border-radius: 8px;
+    background-color: #f8f8f8;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #444;
+    font-weight: 500;
+  }
+  
+  .activeCompanyTab {
+    background-color: #111;
+    color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .backToGridButton {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    justify-content: center;
+    background-color: white;
+    color: #222;
+    font-weight: 600;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: none;
+  }
+  
+  .backToGridButton:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* PDF içeriği için iyileştirmeler */
+  .embeddedPdfViewer {
+    margin-top: 5px;
+  }
+  
+  /* İçerik alanı ve firma grid düzenlemesi */
+
+  
+  .companyGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 0 10px;
+  }
+  
+  .companyBoxFooter {
+    padding: 12px 15px;
+  }
+  
+  .companyBoxFooter h3 {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .companyNavigation {
+    display: none;
+  }
 }

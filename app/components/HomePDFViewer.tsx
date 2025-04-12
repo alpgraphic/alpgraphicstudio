@@ -24,7 +24,6 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
   const [windowWidth, setWindowWidth] = useState<number>(0);
   
   // Uyarı mesajı durumu
-  const [showRotateMessage, setShowRotateMessage] = useState<boolean>(false);
 
   // PDF görüntüleme ayarları
   const options = useMemo(() => ({
@@ -56,21 +55,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
     };
   }, []);
 
-  // Mobil cihazlar için döndürme uyarısını gösteren effect
-  useEffect(() => {
-    if (isMobile && !isLandscape) {
-      setShowRotateMessage(true);
-      
-      // 5 saniye sonra uyarıyı kaldır
-      const timer = setTimeout(() => {
-        setShowRotateMessage(false);
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    } else {
-      setShowRotateMessage(false);
-    }
-  }, [isMobile, isLandscape]);
+
 
   // PDF yükleme işleyicileri
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -220,61 +205,12 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
         </div>
       )}
       
-      {/* Ekran döndürme uyarısı - 5 saniye sonra kaybolur */}
-      {showRotateMessage && (
-        <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          backgroundColor: 'rgba(52, 152, 219, 0.95)',
-          color: 'white',
-          padding: '16px 24px',
-          borderRadius: '10px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          zIndex: 100,
-          textAlign: 'center',
-          maxWidth: '90%',
-          backdropFilter: 'blur(5px)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          animation: 'fadeIn 0.3s ease'
-        }}>
-          <div style={{
-            width: '32px',
-            height: '32px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17 2a3 3 0 0 1 3 3v14a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3h10z"/>
-              <path d="M12 17v.01"/>
-              <path d="m11 7 2 2 2-2"/>
-              <path d="M15 11H9"/>
-            </svg>
-          </div>
-          <div>
-            <p style={{ fontWeight: 600, fontSize: '16px', margin: 0 }}>En iyi görünüm için ekranınızı yatay çevirin</p>
-          </div>
-          <style jsx>{`
-            @keyframes fadeIn {
-              from { opacity: 0; }
-              to { opacity: 1; }
-            }
-          `}</style>
-        </div>
-      )}
-      
       {/* PDF görüntüleme alanı */}
       <div style={{ 
         width: '100%', 
-        flex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '0px 0 170px 0', // Alt butonlar için boşluk
         backgroundColor: '#f8f9fa',
         overflow: 'hidden'
       }}>
@@ -303,7 +239,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
                     pageNumber={1}
                     renderTextLayer={false}
                     renderAnnotationLayer={false}
-                    width={windowWidth > 1200 ? 750 : Math.min(windowWidth - 200, 300)}                    className={styles.pdfPage || 'pdfPage'}
+                    width={windowWidth > 1200 ? 750 : Math.min(windowWidth - 70, 500)}                    className={styles.pdfPage || 'pdfPage'}
                   />
                 </div>
               );
@@ -318,12 +254,11 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
                 alignItems: 'center',
                 gap: '1px',
                 width: '100%',
-                maxWidth: '1600px'
+                maxWidth: '3000px'
               }}>
                 {/* Sol sayfa */}
                 <div style={{
                   boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
-                  borderRadius: '8px 0 0 8px',
                   overflow: 'hidden',
                   backgroundColor: 'white',
                   display: 'flex',
@@ -333,7 +268,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
                     pageNumber={leftPage}
                     renderTextLayer={false}
                     renderAnnotationLayer={false}
-                    width={(isLandscape || !isMobile) ? (windowWidth > 1600 ? 600 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 80, 650)}
+                    width={(isLandscape || !isMobile) ? (windowWidth > 1200 ? 700 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 10, 650)}
                     className={styles.pdfPage || 'pdfPage'}
                   />
                 </div>
@@ -342,7 +277,6 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
                 {rightPage && (
                   <div style={{
                     boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
-                    borderRadius: '0 8px 8px 0',
                     overflow: 'hidden',
                     backgroundColor: 'white',
                     display: 'flex',
@@ -352,7 +286,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
                       pageNumber={rightPage}
                       renderTextLayer={false}
                       renderAnnotationLayer={false}
-                      width={(isLandscape || !isMobile) ? (windowWidth > 1600 ? 600 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 80, 650)}
+                      width={(isLandscape || !isMobile) ? (windowWidth > 1200 ? 700 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 10, 650)}
 
                       className={styles.pdfPage || 'pdfPage'}
                     />

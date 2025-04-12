@@ -172,14 +172,22 @@ const PortfolioPage = () => {
 
   return (
     <div className={styles.fullscreenPortfolio}>
-      {/* Ana menü ve navigasyon bar */}
-      <div className={styles.topNavigation}>
+      {/* Güncellenen Ana menü ve navigasyon bar */}
+      <header className={styles.topNavigation}>
         <div className={styles.navContainer}>
           <div className={styles.logoArea}>
             <img src="/logo.svg" alt="Studio Logo" className={styles.navLogo} />
           </div>
           
           <div className={styles.categoryNav}>
+            {/* Tüm kategorileri görmek için "Tümü" butonu ekledim */}
+            <button
+              className={`${styles.categoryButton} ${activeFilter === 'all' ? styles.activeCategory : ''}`}
+              onClick={() => handleFilterChange('all')}
+            >
+              Tümü
+            </button>
+            
             {categories.map((filter) => (
               <button
                 key={filter.id}
@@ -191,7 +199,8 @@ const PortfolioPage = () => {
             ))}
           </div>
         </div>
-      </div>
+      </header>
+  
 
       {/* İçerik alanı */}
       <div className={styles.contentArea}>
