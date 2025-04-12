@@ -320,7 +320,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
             disabled={currentPage <= 1}
             style={{ 
               padding: '10px 20px', 
-              backgroundColor: currentPage <= 1 ? '#e2e8f0' : '#3498db',
+              backgroundColor: currentPage <= 1 ? '#e2e8f0' : '#000000',
               color: currentPage <= 1 ? '#718096' : 'white',
               border: 'none',
               borderRadius: '8px',
@@ -354,7 +354,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
             disabled={!numPages || currentPage >= numPages}
             style={{ 
               padding: '10px 20px',
-              backgroundColor: !numPages || currentPage >= numPages ? '#e2e8f0' : '#3498db',
+              backgroundColor: !numPages || currentPage >= numPages ? '#e2e8f0' : '#000000',
               color: !numPages || currentPage >= numPages ? '#718096' : 'white',
               border: 'none',
               borderRadius: '8px',
