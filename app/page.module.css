@@ -168,6 +168,7 @@
   z-index: 0;
   transition: opacity 0.2s ease-in-out;
   pointer-events: none;
+  background-color: black;
 }
 
 .logo {
@@ -893,4 +894,8 @@
 @keyframes progressMove {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+.authWrapper ~ .bgImage {
+  z-index: -1 !important;
 }

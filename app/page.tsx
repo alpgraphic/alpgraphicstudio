@@ -23,6 +23,7 @@ const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
     setPassword('');
     setConfirmPassword('');
     setEmail('');
+    setInviteCode('');
     setError('');
     setSuccess('');
   };
@@ -62,7 +63,7 @@ const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   };
 
   const handleRegister = async () => {
-    if (!username || !password || !confirmPassword || !email) {
+    if (!username || !password || !confirmPassword || !email || !inviteCode) {
       setError('Lütfen tüm alanları doldurun.');
       return;
     }
@@ -157,6 +158,9 @@ const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
               onChange={(e) => setInviteCode(e.target.value)}
               onKeyPress={handleKeyPress}
             />
+            <p className={styles.inviteNote}>
+              *Yeni hesap oluşturmak için davet kodu gereklidir
+            </p>
           </>
         )}
         
@@ -238,15 +242,42 @@ const PortfolioPage = ({ preloadedData }: any) => {
     setCompanies(preloadedData?.companies || []);
     setDocuments(preloadedData?.documents || []);
   }, [preloadedData]);
+  
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([
-    // Sadece istediğiniz kategorileri bırakın
-
+    // Kategorileri preloadedData'dan oluştur
   ]);
+
+  // Kategorileri oluşturmak için
+  useEffect(() => {
+    if (preloadedData?.companies?.length > 0) {
+      const uniqueCategories = [
+        ...new Set(
+          preloadedData.companies
+            .filter((company: Company) => company.category)
+            .map((company: Company) => company.category?.toLowerCase().replace(/\s+/g, '-'))
+        )
+      ].filter(Boolean);
+
+      if (uniqueCategories.length > 0) {
+        setCategories(
+          uniqueCategories
+            .filter((id: string) => id !== 'genel' && id !== 'all')
+            .map((id: string) => {
+              const name = id
+                .split('-')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+              return { id, name };
+            })
+        );
+      }
+    }
+  }, [preloadedData]);
 
   // Mobil cihaz tespiti
   useEffect(() => {
@@ -468,16 +499,19 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogo, setShowLogo] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const [bgIndex, setBgIndex] = useState<number>(0);
+  const [bgIndex, setBgIndex] = useState<number>(0); // 0'dan başlat (beyaz arka planla başlar)
   const [activeItemIndex, setActiveItemIndex] = useState<number>(0);
   const [introCompleted, setIntroCompleted] = useState<boolean>(false);
   const [showAuth, setShowAuth] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [bgLoopActive, setBgLoopActive] = useState<boolean>(false);
   const imageCount = 22;
   const [preloadedData, setPreloadedData] = useState<{ companies: Company[]; documents: Document[] }>({
     companies: [],
     documents: [],
   });
+  
+  // Veri ön yükleme
   useEffect(() => {
     async function preloadData() {
       try {
@@ -535,7 +569,23 @@ export default function Home() {
     }
   }, []);
   
-  // Animasyon döngüsü
+  // Auth ekranı arka plan değişim döngüsü (düzeltilmiş)
+  useEffect(() => {
+    if (!bgLoopActive) return;
+    
+    // Auth ekranı arka plan değişimi
+    const bgInterval = setInterval(() => {
+      setBgIndex((prev) => {
+        // 0 ise, ilk görsele geç
+        if (prev === 0) return 1;
+        return (prev % imageCount) + 1;
+      });
+    }, 1000); // 10 saniyede bir değiştir
+    
+    return () => clearInterval(bgInterval);
+  }, [bgLoopActive, imageCount]);
+  
+  // Intro animasyonu döngüsü
   useEffect(() => {
     // Eğer zaten giriş yapıldıysa animasyonu atlayalım
     if (isLoggedIn) return;
@@ -569,7 +619,7 @@ export default function Home() {
     };
   }, [imageCount, isLoggedIn]);
   
-  // Servis menüsü animasyonu
+  // Servis menüsü animasyonu (düzeltilmiş)
   useEffect(() => {
     if (showMenu) {
       const interval = setInterval(() => {
@@ -582,7 +632,8 @@ export default function Home() {
                 setShowMenu(false);
                 
                 setTimeout(() => {
-                  // Auth ekranını göster
+                  // Auth ekranını göster ve döngüyü aktifleştir
+                  setBgLoopActive(true);
                   setShowAuth(true);
                 }, 500);
               }, 1000);
@@ -609,13 +660,19 @@ export default function Home() {
   if (showAuth) {
     return (
       <main className={styles.main}>
+        <Head>
+          <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        </Head>
+ 
+        {/* Arka planı sadece bgIndex > 0 olduğunda göster */}
         {bgIndex > 0 && (
           <img
-            src={`/bg${(bgIndex % imageCount) + 1}.jpeg`}
+            src={`/bg${bgIndex}.jpeg`}
             alt="Background"
             className={styles.bgImage}
           />
         )}
+ 
         <AuthForm 
           onSuccess={() => { 
             setIsLoggedIn(true); 
@@ -633,10 +690,10 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </Head>
       <section className={styles.fullscreen}>
-        {/* Arka planda değişen görseller */}
+        {/* Arka planda değişen görseller - sadece bgIndex > 0 olduğunda göster */}
         {bgIndex > 0 && (
           <img
-            src={`/bg${(bgIndex % imageCount) + 1}.jpeg`}
+            src={`/bg${bgIndex}.jpeg`}
             alt="Background"
             className={styles.bgImage}
           />
