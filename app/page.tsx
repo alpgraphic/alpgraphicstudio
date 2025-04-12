@@ -6,6 +6,208 @@ import { motion } from 'framer-motion';
 import Head from 'next/head';
 import HomePDFViewer from './components/HomePDFViewer';
 
+// AuthForm bileşeni (Login ve Kayıt İşlemleri)
+const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
+  const [isLoginMode, setIsLoginMode] = useState(true);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
+
+  const resetForm = () => {
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setEmail('');
+    setError('');
+    setSuccess('');
+  };
+
+  const toggleMode = () => {
+    setIsLoginMode(!isLoginMode);
+    resetForm();
+  };
+
+  const handleLogin = async () => {
+    if (!username || !password) {
+      setError('Lütfen tüm alanları doldurun.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      
+      const res = await fetch('/api/portfolio-login', {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (res.status === 200) {
+        localStorage.setItem('portfolio-auth', 'true');
+        onSuccess();
+      } else {
+        const data = await res.json();
+        setError(data.message || 'Hatalı giriş bilgileri.');
+      }
+    } catch (err) {
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!username || !password || !confirmPassword || !email) {
+      setError('Lütfen tüm alanları doldurun.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Şifreler eşleşmiyor.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Şifre en az 6 karakter olmalıdır.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError('');
+      
+      const res = await fetch('/api/portfolio-register', {
+        method: 'POST',
+        body: JSON.stringify({ username, password, email, inviteCode }),
+      });
+
+      const data = await res.json();
+
+      if (res.status === 201) {
+        setSuccess('Hesabınız başarıyla oluşturuldu! Giriş yapabilirsiniz.');
+        setTimeout(() => {
+          setIsLoginMode(true);
+          setSuccess('');
+          setUsername('');
+          setPassword('');
+        }, 3000);
+      } else {
+        setError(data.message || 'Kayıt olurken bir hata oluştu.');
+      }
+    } catch (err) {
+      setError('Bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isLoginMode) {
+      handleLogin();
+    } else {
+      handleRegister();
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      isLoginMode ? handleLogin() : handleRegister();
+    }
+  };
+
+  return (
+    <div className={styles.authWrapper}>
+      <h2 className={styles.authTitle}>
+        {isLoginMode ? 'Portfolyo Giriş' : 'Hesap Oluştur'}
+      </h2>
+      <p className={styles.authSubtitle}>
+        {isLoginMode 
+          ? 'Portfolyo alanına erişmek için giriş yapın' 
+          : 'Yeni bir portfolyo hesabı oluşturun'}
+      </p>
+      
+      <form onSubmit={handleSubmit} className={styles.authForm}>
+        <input
+          type="text"
+          placeholder="Kullanıcı Adı"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          onKeyPress={handleKeyPress}
+        />
+        
+        {!isLoginMode && (
+          <>
+            <input
+              type="email"
+              placeholder="E-posta Adresi"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+            <input
+              type="text"
+              placeholder="Davet Kodu"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+          </>
+        )}
+        
+        <input
+          type="password"
+          placeholder="Şifre"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onKeyPress={handleKeyPress}
+        />
+        
+        {!isLoginMode && (
+          <input
+            type="password"
+            placeholder="Şifreyi Tekrar Girin"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onKeyPress={handleKeyPress}
+          />
+        )}
+        
+        <button 
+          type="submit" 
+          className={loading ? styles.authButtonLoading : ''}
+          disabled={loading}
+        >
+          {loading 
+            ? 'İşleniyor...' 
+            : isLoginMode 
+              ? 'Giriş Yap' 
+              : 'Hesap Oluştur'}
+        </button>
+      </form>
+      
+      {error && <p className={styles.errorText}>{error}</p>}
+      {success && <p className={styles.successText}>{success}</p>}
+      
+      <div className={styles.authToggle}>
+        <p>
+          {isLoginMode 
+            ? 'Hesabınız yok mu?' 
+            : 'Zaten hesabınız var mı?'}
+        </p>
+        <button onClick={toggleMode} className={styles.authToggleButton}>
+          {isLoginMode ? 'Hesap Oluştur' : 'Giriş Yap'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 interface Category {
   id: string;
   name: string;
@@ -28,18 +230,22 @@ interface Document {
 }
 
 // Portfolyo Sayfası bileşeni
-const PortfolioPage = () => {
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
+const PortfolioPage = ({ preloadedData }: any) => {
+  const [companies, setCompanies] = useState<Company[]>(preloadedData?.companies || []);
+  const [documents, setDocuments] = useState<Document[]>(preloadedData?.documents || []);
+  
+  useEffect(() => {
+    setCompanies(preloadedData?.companies || []);
+    setDocuments(preloadedData?.documents || []);
+  }, [preloadedData]);
   const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([
     // Sadece istediğiniz kategorileri bırakın
-    { id: 'kurumsal-kimlik', name: 'Kurumsal Kimlik' },
-    { id: 'logo-tasarimi', name: 'Logo Tasarımı' }
+
   ]);
 
   // Mobil cihaz tespiti
@@ -59,63 +265,18 @@ const PortfolioPage = () => {
     };
   }, []);
 
-  // Verileri API'den çek
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true);
-        
-        // Firmaları çek
-        const companiesRes = await fetch('/api/companies');
-        const companiesData = await companiesRes.json();
-        
-        // Dokümanları çek
-        const documentsRes = await fetch('/api/documents');
-        const documentsData = await documentsRes.json();
-        
-        if (companiesData.success) {
-          setCompanies(companiesData.data);
-          
-          // Kategorileri firmalara göre güncelle
-          const uniqueCategories = [
-            ...new Set(
-              companiesData.data
-                .filter(company => company.category)
-                .map(company => company.category?.toLowerCase().replace(/\s+/g, '-'))
-            )
-          ].filter(Boolean); // undefined değerleri filtrele
-          
-          // Kategori listesini güncelle
-          if (uniqueCategories.length > 0) {
-            setCategories(
-              uniqueCategories
-                .filter(id => id !== 'genel' && id !== 'all') // İstenmeyen kategorileri filtrele
-                .map(id => {
-                  const name = id
-                    .split('-')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-                  return { id, name };
-                })
-            );
-          }
-        }
-        
-        if (documentsData.success) {
-          setDocuments(documentsData.data);
-        }
-        
-        setError(null);
-      } catch (err) {
-        console.error('Veri çekme hatası:', err);
-        setError('Veriler yüklenirken bir hata oluştu.');
-      } finally {
-        setLoading(false);
+    if (selectedCompany && isMobile) {
+      const switcher = document.querySelector(`.${styles.companySwitcher}`);
+      if (switcher) {
+        switcher.scrollTo({ left: 50, behavior: 'smooth' });
+        setTimeout(() => {
+          switcher.scrollTo({ left: 0, behavior: 'smooth' });
+        }, 500);
       }
     }
-    
-    fetchData();
-  }, []);
+  }, [selectedCompany, isMobile]);
+
 
   // Firma seçimi yapıldığında
   const handleCompanySelect = (companyId: string) => {
@@ -153,8 +314,10 @@ const PortfolioPage = () => {
   if (loading) {
     return (
       <div className={styles.loadingContainer}>
-        <div className={styles.spinner}></div>
-        <p>Portfolyo yükleniyor...</p>
+        <img src="/logo.svg" alt="Studio Logo" className={styles.loadingLogo} />
+        <div className={styles.progressBarWrapper}>
+          <div className={styles.progressBar}></div>
+        </div>
       </div>
     );
   }
@@ -185,7 +348,7 @@ const PortfolioPage = () => {
               className={`${styles.categoryButton} ${activeFilter === 'all' ? styles.activeCategory : ''}`}
               onClick={() => handleFilterChange('all')}
             >
-              Tümü
+              Anasayfa
             </button>
             
             {categories.map((filter) => (
@@ -302,20 +465,40 @@ const PortfolioPage = () => {
 
 // Ana bileşen
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogo, setShowLogo] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [bgIndex, setBgIndex] = useState<number>(0);
   const [activeItemIndex, setActiveItemIndex] = useState<number>(0);
   const [introCompleted, setIntroCompleted] = useState<boolean>(false);
+  const [showAuth, setShowAuth] = useState(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
-  const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [portfolioLoading, setPortfolioLoading] = useState<boolean>(true);
-  const [portfolioError, setPortfolioError] = useState<string | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
   const imageCount = 22;
+  const [preloadedData, setPreloadedData] = useState<{ companies: Company[]; documents: Document[] }>({
+    companies: [],
+    documents: [],
+  });
+  useEffect(() => {
+    async function preloadData() {
+      try {
+        const companiesRes = await fetch('/api/companies');
+        const companiesData = await companiesRes.json();
+
+        const documentsRes = await fetch('/api/documents');
+        const documentsData = await documentsRes.json();
+
+        setPreloadedData({
+          companies: companiesData.data || [],
+          documents: documentsData.data || [],
+        });
+      } catch (error) {
+        console.error('Veri ön yüklemesi hatası:', error);
+      }
+    }
+
+    preloadData();
+  }, []);
+
   const services = [
     'Logo Tasarımı',
     'Grafik Tasarım',
@@ -325,59 +508,6 @@ export default function Home() {
     'Kurumsal Kimlik & Marka Tasarımı',
   ];
   const trackRef = useRef<HTMLDivElement>(null);
-  
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setPortfolioLoading(true);
-  
-        const companiesRes = await fetch('/api/companies');
-        const companiesData = await companiesRes.json();
-  
-        const documentsRes = await fetch('/api/documents');
-        const documentsData = await documentsRes.json();
-  
-        if (companiesData.success) {
-          setCompanies(companiesData.data);
-  
-          const uniqueCategories = [
-            ...new Set(
-              companiesData.data
-                .filter(company => company.category)
-                .map(company => company.category?.toLowerCase().replace(/\s+/g, '-'))
-            )
-          ].filter(Boolean);
-  
-          if (uniqueCategories.length > 0) {
-            setCategories(
-              uniqueCategories
-                .filter(id => id !== 'genel' && id !== 'all')
-                .map(id => {
-                  const name = id
-                    .split('-')
-                    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ');
-                  return { id, name };
-                })
-            );
-          }
-        }
-  
-        if (documentsData.success) {
-          setDocuments(documentsData.data);
-        }
-  
-        setPortfolioError(null);
-      } catch (err) {
-        console.error('Veri çekme hatası:', err);
-        setPortfolioError('Veriler yüklenirken bir hata oluştu.');
-      } finally {
-        setPortfolioLoading(false);
-      }
-    }
-  
-    fetchData();
-  }, []);
   
   // Cihaz tipini algılama
   useEffect(() => {
@@ -395,19 +525,20 @@ export default function Home() {
       window.removeEventListener('resize', checkDeviceType);
     };
   }, []);
+
+  // LocalStorage kontrolü - önceden giriş yapıldı mı?
+  useEffect(() => {
+    const isAuth = localStorage.getItem('portfolio-auth') === 'true';
+    if (isAuth) {
+      setIsLoggedIn(true);
+      setIntroCompleted(true);
+    }
+  }, []);
   
-  const handleCompanySelect = (companyId: string) => {
-    setSelectedCompany(companyId);
-  };
-
-  const handleFilterChange = (filterId: string) => {
-    setActiveFilter(filterId);
-    setSelectedCompany(null);
-  };
-
   // Animasyon döngüsü
   useEffect(() => {
-    // Merhaba görünecek
+    // Eğer zaten giriş yapıldıysa animasyonu atlayalım
+    if (isLoggedIn) return;
     
     // 1.4 saniye sonra logo göster
     const timer2 = setTimeout(() => setShowLogo(true), 1400);
@@ -436,8 +567,9 @@ export default function Home() {
       clearTimeout(timer2);
       clearTimeout(timer4);
     };
-  }, [imageCount]);
+  }, [imageCount, isLoggedIn]);
   
+  // Servis menüsü animasyonu
   useEffect(() => {
     if (showMenu) {
       const interval = setInterval(() => {
@@ -450,8 +582,8 @@ export default function Home() {
                 setShowMenu(false);
                 
                 setTimeout(() => {
-                  // Mobil cihaz veya masaüstü, intro'yu tamamla
-                  setIntroCompleted(true);
+                  // Auth ekranını göster
+                  setShowAuth(true);
                 }, 500);
               }, 1000);
               
@@ -468,13 +600,33 @@ export default function Home() {
     }
   }, [showMenu, services.length]);
   
-  // Eğer intro tamamlandıysa portfolyo sayfasını göster (mobil veya masaüstü farketmez)
-  if (introCompleted) {
+  // 1. Giriş yapıldıysa PortfolioPage'i göster
+  if (isLoggedIn) {
+    return <PortfolioPage preloadedData={preloadedData} />;
+  }
+
+  // 2. Animasyon tamamlandı ve auth gerekiyorsa auth ekranını göster
+  if (showAuth) {
     return (
-      <PortfolioPage />
+      <main className={styles.main}>
+        {bgIndex > 0 && (
+          <img
+            src={`/bg${(bgIndex % imageCount) + 1}.jpeg`}
+            alt="Background"
+            className={styles.bgImage}
+          />
+        )}
+        <AuthForm 
+          onSuccess={() => { 
+            setIsLoggedIn(true); 
+            setIntroCompleted(true); 
+          }} 
+        />
+      </main>
     );
   }
-  
+
+  // 3. Diğer durumlarda intro animasyonu göster
   return (
     <main className={styles.main}>
       <Head>

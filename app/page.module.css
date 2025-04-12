@@ -1,5 +1,124 @@
+/* Login bileşeni için modern stil */
+.loginWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  width: 380px;
+  max-width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
 
+.loginWrapper:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -52%);
+}
 
+.loginWrapper input {
+  padding: 15px;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.loginWrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.loginWrapper input:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.loginWrapper button {
+  padding: 15px;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.loginWrapper button:hover {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.loginWrapper button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.loginWrapper p {
+  color: rgb(255, 100, 100);
+  font-size: 14px;
+  margin-top: 5px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.loginTitle {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
+}
+
+.loginSubtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Animasyon */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobil görünüm */
+@media (max-width: 768px) {
+  .loginWrapper {
+    padding: 30px;
+    width: 320px;
+  }
+  
+  .loginTitle {
+    font-size: 24px;
+  }
+  
+  .loginSubtitle {
+    font-size: 14px;
+  }
+}
+
+/* Diğer CSS dosyasından, korunacak tüm CSS kodları buraya eklenecek */
 .pdf-navigation-button {
   background-color: #333 !important;
   color: white !important;
@@ -12,7 +131,9 @@
 .pdf-navigation-button:disabled {
   background-color: #e2e8f0 !important;
   color: #718096 !important;
-}/* Ana sayfa için mevcut CSS stilleri korunuyor */
+}
+
+/* Ana sayfa için mevcut CSS stilleri korunuyor */
 .main {
   width: 100%;
   min-height: 100vh;
@@ -105,8 +226,6 @@
   filter: blur(4px);
   transition: all 1s ease;
   white-space: nowrap;
-  
-
 }
 
 .presentationItem.active {
@@ -131,7 +250,6 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
-  
 }
 
 /* Mobil özel stiller */
@@ -187,7 +305,6 @@
   z-index: 10;
   position: sticky;
   top: 0;
-  
 }
 
 .navContainer {
@@ -199,7 +316,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  
 }
 
 .logoArea {
@@ -221,13 +337,11 @@
   scrollbar-width: none; /* Firefox */
   padding: 10px 0;  /* Dikey boşluk eklendi */
   flex-wrap: nowrap;
-  
-    /* Kategorilerin aynı satırda kalmasını sağlar */
+  /* Kategorilerin aynı satırda kalmasını sağlar */
 }
 
 .categoryNav::-webkit-scrollbar {
   display: none; /* Chrome, Safari ve Opera */
-  
 }
 
 .categoryButton {
@@ -241,7 +355,6 @@
   border-radius: 5px;
   transition: all 0.3s ease;
   white-space: nowrap;
-  
   min-width: fit-content;
 }
 
@@ -254,7 +367,6 @@
   color: white;
 }
 
-
 /* Ana İçerik Alanı */
 .contentArea {
   flex: 1;
@@ -265,7 +377,7 @@
   align-items: center;
   margin-top: 0px;  /* Header ile içerik arasında biraz boşluk */
   overflow-y: auto; 
-   /* İçerik çok ise kaydırma çubuğu göster */
+  /* İçerik çok ise kaydırma çubuğu göster */
 }
 
 /* Firma Grid Görünümü */
@@ -276,7 +388,6 @@
   width: 100%;
   max-width: 1500px;
   margin: 0 auto;
-  
 }
 
 .companyBox {
@@ -287,20 +398,17 @@
   background-color: white;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  
 }
 
 .companyBox:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
-  
 }
 
 .companyBoxInner {
   display: flex;
   flex-direction: column;
   height: 100%;
-  
 }
 
 .companyLogoArea {
@@ -310,13 +418,11 @@
   align-items: center;
   overflow: hidden;
   position: relative;
-  
 }
 
 .companyLogoArea img {
   max-height: 110%;
   object-fit: contain;
-  
 }
 
 .companyBoxFooter {
@@ -328,7 +434,6 @@
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 5px 0;
-  
 }
 
 .companyMeta {
@@ -364,8 +469,6 @@
   height: 60px; /* Header ile aynı yükseklikte olması için */
   box-shadow: 0 2px 10px rgba(0,0,0,0.03);
   border-radius: 5px;
-  
-  
 }
 
 .backToGridButton {
@@ -392,16 +495,16 @@
   gap: 10px;
   overflow-x: auto;
   white-space: nowrap;
-  padding: 5px;
-  max-width: 70%; /* Çok fazla firma olduğunda taşmaması için */
+  scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  height: 50px; /* Yüksekliği ayarlandı */
-  align-items: center; /* Dikey olarak ortalandı */
+  padding: 5px;
+  max-width: 70%;
+  height: 50px;
+  align-items: center;
 }
 
 .companySwitcher::-webkit-scrollbar {
-  display: none; /* Chrome, Safari ve Opera */
+  display: none;
 }
 
 .companyTab {
@@ -418,6 +521,8 @@
   display: flex;
   align-items: center;
   color: #555;
+  display: inline-block;
+  scroll-snap-align: start;
 }
 
 .companyTab:hover {
@@ -486,14 +591,12 @@
   .topNavigation {
     height: auto;
     padding: 15px 0;
-    
   }
   
   .navContainer {
     flex-direction: column;
     gap: 15px;
     padding: 0 20px;
-    
   }
   
   .logoArea {
@@ -590,8 +693,6 @@
   }
   
   /* İçerik alanı ve firma grid düzenlemesi */
-
-  
   .companyGrid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 20px;
@@ -606,9 +707,190 @@
     font-size: 16px;
   }
 }
+/* Arka plan resmi için daha yumuşak geçişler */
+.bgImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  opacity: 1;
+  transition: opacity 0.8s ease-in-out; /* Yumuşak geçiş */
+  pointer-events: none;
+}
 
-@media (max-width: 768px) {
-  .companyNavigation {
-    display: none;
-  }
+/* Auth bileşeni için stil */
+.authWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  width: 400px;
+  max-width: 90%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.authWrapper:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transform: translate(-50%, -52%);
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.authWrapper input {
+  padding: 15px;
+  border: none;
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 16px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.authWrapper input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.authWrapper input:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.authWrapper button {
+  padding: 15px;
+  background-color: white;
+  color: black;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.authWrapper button:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.authWrapper button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.authButtonLoading {
+  opacity: 0.8;
+  cursor: not-allowed !important;
+}
+
+.errorText {
+  color: rgb(255, 100, 100);
+  font-size: 14px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.successText {
+  color: rgb(100, 255, 150);
+  font-size: 14px;
+  text-align: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.authTitle {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0;
+  letter-spacing: 0.5px;
+}
+
+.authSubtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 16px;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.authToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.authToggle p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0;
+}
+
+.authToggleButton {
+  background: none !important;
+  border: none;
+  padding: 5px 10px !important;
+  font-size: 15px
+}
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: black;
+  width: 100vw;
+  height: 100vh;
+  gap: 20px;
+}
+
+.loadingLogo {
+  width: 120px;
+  height: auto;
+}
+
+.progressBarWrapper {
+  width: 200px;
+  height: 4px;
+  background-color: rgba(255,255,255,0.2);
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 100%;
+  background: white;
+  animation: progressMove 1.5s infinite linear;
+  transform: translateX(-100%);
+}
+
+@keyframes progressMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
