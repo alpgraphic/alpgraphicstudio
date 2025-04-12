@@ -158,9 +158,7 @@ const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
               onChange={(e) => setInviteCode(e.target.value)}
               onKeyPress={handleKeyPress}
             />
-            <p className={styles.inviteNote}>
-              *Yeni hesap oluşturmak için davet kodu gereklidir
-            </p>
+
           </>
         )}
         
