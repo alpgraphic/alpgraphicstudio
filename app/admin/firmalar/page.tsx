@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { UploadButton } from "@uploadthing/react";
-
+// import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 // Firma tipi için arayüz tanımlama
 interface Company {
   _id: string;
@@ -12,6 +13,7 @@ interface Company {
   category?: string;
   year?: string;
   pdfUrl?: string;
+  order: number // Sıralama için
 }
 
 export default function CompaniesPage() {
@@ -39,7 +41,14 @@ export default function CompaniesPage() {
       const companiesRes = await fetch('/api/companies');      
       const data = await companiesRes.json(); // res yerine companiesRes kullanın
       if (data.success) {
-        setCompanies(data.data);
+        // Firmaları sıralama alanına göre sırala (sıralama yoksa id'ye göre)
+        const sortedCompanies = data.data.sort((a, b) => {
+          if (a.order !== undefined && b.order !== undefined) {
+            return a.order - b.order;
+          }
+          return 0;
+        });
+        setCompanies(sortedCompanies);
       } else {
         setError('Firma listesi alınamadı.');
       }
@@ -50,6 +59,48 @@ export default function CompaniesPage() {
       setLoading(false);
     }
   };
+  // Sürükle bırak sırasını değiştirme
+const handleDragEnd = async (result) => {
+  // Hedef yok veya hedef liste dışıysa işlem yapma
+  if (!result.destination) return;
+  
+  // Sıralama değişmediyse işlem yapma
+  if (result.destination.index === result.source.index) return;
+  
+  // Yeniden sıralanmış firmalar listesi oluştur
+  const items = Array.from(companies);
+  const [reorderedItem] = items.splice(result.source.index, 1);
+  items.splice(result.destination.index, 0, reorderedItem);
+  
+  // Sıra numaralarını güncelle
+  const updatedItems = items.map((item, index) => ({
+    ...item,
+    order: index
+  }));
+  
+  // State'i güncelle
+  setCompanies(updatedItems);
+  
+  // Veritabanında sıralamaları güncelle
+  try {
+    const res = await fetch('/api/companies/reorder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ companies: updatedItems }),
+    });
+    
+    const data = await res.json();
+    if (!data.success) {
+      setError('Sıralama kaydedilemedi');
+      // Hata durumunda original listeyi geri yükle
+      fetchCompanies();
+    }
+  } catch (err) {
+    setError('Sıralama kaydedilirken hata oluştu');
+    console.error(err);
+    fetchCompanies();
+  }
+};
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,19 +137,25 @@ export default function CompaniesPage() {
           setError('Firma güncellenemedi.');
         }
       } else {
-        // Yeni firma ekleme
-        const res = await fetch(`/api/companies`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            name: companyName, 
-            logo: companyLogo, 
-            cover: companyCover,
-            category: companyCategory,
-            year: companyYear,
-            pdfUrl: companyPdfUrl
-          }),
-        });
+// Yeni sıra numarası hesapla - mevcut firmaların en yüksek sıra numarası + 1
+const newOrder = companies.length > 0 
+  ? Math.max(...companies.map(c => c.order || 0)) + 1 
+  : 0;
+
+// Yeni firma ekleme
+const res = await fetch(`/api/companies`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ 
+    name: companyName, 
+    logo: companyLogo, 
+    cover: companyCover,
+    category: companyCategory,
+    year: companyYear,
+    pdfUrl: companyPdfUrl,
+    order: newOrder
+  }),
+});
 
         const data = await res.json();
         if (data.success) {
@@ -136,10 +193,9 @@ export default function CompaniesPage() {
     
     try {
       // Mevcut DELETE API'sini kullan (query parameter ile)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/companies?id=${companyToDelete._id}`, {        
+      const res = await fetch(`/api/companies?id=${companyToDelete._id}`, {
         method: 'DELETE',
       });
-
       const data = await res.json();
       if (data.success) {
         alert("Firma başarıyla silindi!");
@@ -331,49 +387,74 @@ export default function CompaniesPage() {
           </div>
         )}
 
-        <div className="companies-list">
-          <h2 className="companies-list-title">Firma Listesi</h2>
+<div className="companies-list">
+  <h2 className="companies-list-title">Firma Listesi</h2>
+  <p className="drag-instruction">Sıralamayı değiştirmek için firmaları sürükleyip bırakın</p>
 
-          {loading ? (
-            <div>
-              <div className="loading-spinner"></div>
-            </div>
-          ) : companies.length === 0 ? (
-            <p className="companies-list-empty">
-              Henüz firma eklenmemiş.
-            </p>
-          ) : (
-            <ul className="companies-ul">
-              {companies.map((company: Company) => (
-                <li 
-                  key={company._id} 
-                  className="company-item"
-                >
-                  <div className="company-info">
-                    <span className="company-name">{company.name}</span>
-                    {company.logo && <span className="company-has-logo">Logo ✓</span>}
-                    {company.cover && <span className="company-has-cover">Kapak ✓</span>}
-                    <span className="company-category">{company.category || 'Genel'}</span>
-                  </div>
-                  <div className="company-actions">
-                    <button 
-                      className="edit-button"
-                      onClick={() => handleEdit(company)}
-                    >
-                      Düzenle
-                    </button>
-                    <button 
-                      className="delete-button"
-                      onClick={() => confirmDelete(company)}
-                    >
-                      Sil
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+  {loading ? (
+    <div>
+      <div className="loading-spinner"></div>
+    </div>
+  ) : companies.length === 0 ? (
+    <p className="companies-list-empty">
+      Henüz firma eklenmemiş.
+    </p>
+  ) : (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <Droppable droppableId="companies">
+        {(provided) => (
+          <ul 
+            className="companies-ul"
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            {companies.map((company: Company, index) => (
+              <Draggable 
+                key={company._id} 
+                draggableId={company._id} 
+                index={index}
+              >
+                {(provided, snapshot) => (
+                  <li 
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className={`company-item ${snapshot.isDragging ? 'dragging' : ''}`}
+                  >
+                    <div className="company-drag-handle">
+                      ⋮⋮
+                    </div>
+                    <div className="company-info">
+                      <span className="company-name">{company.name}</span>
+                      {company.logo && <span className="company-has-logo">Logo ✓</span>}
+                      {company.cover && <span className="company-has-cover">Kapak ✓</span>}
+                      <span className="company-category">{company.category || 'Genel'}</span>
+                    </div>
+                    <div className="company-actions">
+                      <button 
+                        className="edit-button"
+                        onClick={() => handleEdit(company)}
+                      >
+                        Düzenle
+                      </button>
+                      <button 
+                        className="delete-button"
+                        onClick={() => confirmDelete(company)}
+                      >
+                        Sil
+                      </button>
+                    </div>
+                  </li>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </ul>
+        )}
+      </Droppable>
+    </DragDropContext>
+  )}
+</div>
       </div>
 
       {/* Silme Onayı Modal */}
@@ -476,15 +557,37 @@ export default function CompaniesPage() {
         }
         
         .company-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px;
-          border: 1px solid #eee;
-          border-radius: 4px;
-          margin-bottom: 10px;
-          background-color: #f9f9f9;
-        }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  background-color: #f9f9f9;
+  cursor: grab;
+}
+
+.company-item.dragging {
+  background-color: #f0f8ff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  opacity: 0.8;
+}
+
+.company-drag-handle {
+  margin-right: 10px;
+  color: #999;
+  font-size: 18px;
+  cursor: grab;
+}
+
+.drag-instruction {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+  text-align: center;
+  font-style: italic;
+}
         
         .company-info {
           display: flex;

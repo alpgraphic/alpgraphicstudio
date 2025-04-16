@@ -246,9 +246,7 @@ const PortfolioPage = ({ preloadedData }: any) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [categories, setCategories] = useState<Category[]>([
-    // Kategorileri preloadedData'dan oluştur
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   // Kategorileri oluşturmak için
   useEffect(() => {
@@ -305,7 +303,6 @@ const PortfolioPage = ({ preloadedData }: any) => {
       }
     }
   }, [selectedCompany, isMobile]);
-
 
   // Firma seçimi yapıldığında
   const handleCompanySelect = (companyId: string) => {
@@ -364,6 +361,12 @@ const PortfolioPage = ({ preloadedData }: any) => {
 
   return (
     <div className={styles.fullscreenPortfolio}>
+      {/* Kozmik arka plan */}
+      <div className={styles.cosmicBackground}></div>
+      
+      {/* Yıldız efektleri */}
+      <div className={styles.stars}></div>
+      
       {/* Güncellenen Ana menü ve navigasyon bar */}
       <header className={styles.topNavigation}>
         <div className={styles.navContainer}>
@@ -372,7 +375,7 @@ const PortfolioPage = ({ preloadedData }: any) => {
           </div>
           
           <div className={styles.categoryNav}>
-            {/* Tüm kategorileri görmek için "Tümü" butonu ekledim */}
+            {/* Tüm kategorileri görmek için "Tümü" butonu */}
             <button
               className={`${styles.categoryButton} ${activeFilter === 'all' ? styles.activeCategory : ''}`}
               onClick={() => handleFilterChange('all')}
@@ -392,7 +395,6 @@ const PortfolioPage = ({ preloadedData }: any) => {
           </div>
         </div>
       </header>
-  
 
       {/* İçerik alanı */}
       <div className={styles.contentArea}>
@@ -467,7 +469,7 @@ const PortfolioPage = ({ preloadedData }: any) => {
               </div>
             </div>
             
-            {/* PDF görüntüleyici - Güncellenmiş */}
+            {/* PDF görüntüleyici */}
             <div className={styles.embeddedPdfViewer}>
               {latestDocument ? (
                 <HomePDFViewer 
@@ -567,7 +569,7 @@ export default function Home() {
     }
   }, []);
   
-  // Auth ekranı arka plan değişim döngüsü (düzeltilmiş)
+  // Auth ekranı arka plan değişim döngüsü
   useEffect(() => {
     if (!bgLoopActive) return;
     
@@ -578,7 +580,7 @@ export default function Home() {
         if (prev === 0) return 1;
         return (prev % imageCount) + 1;
       });
-    }, 1000); // 10 saniyede bir değiştir
+    }, 4000); // 4 saniyede bir değiştir
     
     return () => clearInterval(bgInterval);
   }, [bgLoopActive, imageCount]);
@@ -617,7 +619,7 @@ export default function Home() {
     };
   }, [imageCount, isLoggedIn]);
   
-  // Servis menüsü animasyonu (düzeltilmiş)
+  // Servis menüsü animasyonu
   useEffect(() => {
     if (showMenu) {
       const interval = setInterval(() => {
@@ -661,6 +663,9 @@ export default function Home() {
         <Head>
           <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         </Head>
+        
+        {/* Kozmik arka plan */}
+        <div className={styles.cosmicBackground}></div>
  
         {/* Arka planı sadece bgIndex > 0 olduğunda göster */}
         {bgIndex > 0 && (
@@ -670,6 +675,10 @@ export default function Home() {
             className={styles.bgImage}
           />
         )}
+        
+        {/* Gezegen ve yıldız efektleri */}
+        <div className={styles.planet}></div>
+        <div className={styles.stars}></div>
  
         <AuthForm 
           onSuccess={() => { 
@@ -687,6 +696,10 @@ export default function Home() {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
       </Head>
+      
+      {/* Kozmik arka plan */}
+      <div className={styles.cosmicBackground}></div>
+      
       <section className={styles.fullscreen}>
         {/* Arka planda değişen görseller - sadece bgIndex > 0 olduğunda göster */}
         {bgIndex > 0 && (
@@ -696,6 +709,9 @@ export default function Home() {
             className={styles.bgImage}
           />
         )}
+        
+        {/* Yıldız efektleri */}
+        <div className={styles.stars}></div>
         
         {/* Merhaba - sadece başlangıçta göster */}
         {bgIndex < 5 && (
@@ -709,7 +725,7 @@ export default function Home() {
           </motion.h1>
         )}
         
-        {/* Logo */}
+        {/* Logo - camda duruyormuş gibi efekt */}
         {showLogo && (
           <motion.div
             className={styles.logo}
@@ -717,15 +733,17 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ duration: 2 }}
           >
-            <img
-              src="/logo.svg"
-              alt="Studio Logo"
-              className={styles.logoImage}
-            />
+            <div className={styles.glassOrb}>
+              <img
+                src="/logo.svg"
+                alt="Studio Logo"
+                className={styles.logoImage}
+              />
+            </div>
           </motion.div>
         )}
         
-        {/* SUNUM - hem masaüstü hem de mobil için */}
+        {/* SUNUM - modern görünüm */}
         {showMenu && (
           <motion.section 
             className={styles.menu}

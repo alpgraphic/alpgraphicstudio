@@ -20,46 +20,41 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
   
   // Ekran ve cihaz durumları
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [isLandscape, setIsLandscape] = useState<boolean>(false);
   const [windowWidth, setWindowWidth] = useState<number>(0);
+  const [windowHeight, setWindowHeight] = useState<number>(0);
   
-  // Uyarı mesajı durumu
-
   // PDF görüntüleme ayarları
   const options = useMemo(() => ({
     cMapUrl: 'https://unpkg.com/pdfjs-dist@3.11.174/cmaps/',
     cMapPacked: true,
   }), []);
 
-  // Ekran boyutunu ve yönünü takip eden effect
+  // Ekran boyutunu takip eden effect
   useEffect(() => {
-    const checkDeviceAndOrientation = () => {
+    const checkDeviceAndSize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
       
       setWindowWidth(width);
+      setWindowHeight(height);
       setIsMobile(width < 768);
-      setIsLandscape(width > height);
     };
     
     // İlk yükleme
-    checkDeviceAndOrientation();
+    checkDeviceAndSize();
     
     // Ekran değişiklikleri için listener'lar
-    window.addEventListener('resize', checkDeviceAndOrientation);
-    window.addEventListener('orientationchange', checkDeviceAndOrientation);
+    window.addEventListener('resize', checkDeviceAndSize);
     
     return () => {
-      window.removeEventListener('resize', checkDeviceAndOrientation);
-      window.removeEventListener('orientationchange', checkDeviceAndOrientation);
+      window.removeEventListener('resize', checkDeviceAndSize);
     };
   }, []);
 
+  // PDF URL'i değiştiğinde ilk sayfaya dön
   useEffect(() => {
     setCurrentPage(1);
   }, [pdfUrl]);
-
-
 
   // PDF yükleme işleyicileri
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -75,66 +70,42 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
 
   // Sayfa geçiş işleyicileri
   function goToPrevPage() {
-    setCurrentPage(prevPage => {
-      // İlk sayfada isek geri gidemeyiz
-      if (prevPage <= 1) return 1;
-      
-      // Eğer 2. veya 3. sayfada isek, 1. sayfaya git (kapak sayfası)
-      if (prevPage <= 3) return 1;
-      
-      // Diğer durumlarda 2 sayfa geri git (kitap görünümünde 2 sayfa atlıyoruz)
-      return prevPage - 2;
-    });
+    setCurrentPage(prevPage => (prevPage <= 1 ? 1 : prevPage - 1));
   }
 
   function goToNextPage() {
-    setCurrentPage(prevPage => {
-      // Son sayfada isek ileri gidemeyiz
-      if (!numPages || prevPage >= numPages) return prevPage;
-      
-      // İlk sayfada isek (kapak sayfası), 2. sayfaya git
-      if (prevPage === 1) return 2;
-      
-      // Diğer durumlarda 2 sayfa ileri git
-      return Math.min(numPages, prevPage + 2);
-    });
+    setCurrentPage(prevPage => (!numPages || prevPage >= numPages ? prevPage : prevPage + 1));
   }
-
-  // Mevcut sayfa çiftini belirle
-  const getCurrentPages = () => {
-    if (!numPages) return [1, null];
-    
-    // İlk sayfa her zaman tek başına (kapak sayfası)
-    if (currentPage === 1) return [1, null];
-    
-    // 2. sayfadan itibaren çift sayfalar göster
-    const leftPage = currentPage % 2 === 0 ? currentPage : currentPage - 1;
-    const rightPage = leftPage + 1 <= numPages ? leftPage + 1 : null;
-    
-    return [leftPage, rightPage];
-  };
 
   // Sayfa numarası gösterimi
   const getPageDisplay = () => {
     if (!numPages) return "0/0";
-    
-    // Toplam kitap sayfası (çift sayfa olarak)
-    const totalBookPages = Math.ceil((numPages - 1) / 2) + 1; // İlk sayfa + diğer çift sayfalar
-    
-    // Mevcut kitap sayfası
-    let currentBookPage = 1; // İlk sayfa için
-    if (currentPage > 1) {
-      currentBookPage = 1 + Math.ceil((currentPage - 1) / 2);
-    }
-    
-    return `${currentBookPage}/${totalBookPages}`;
+    return `${currentPage}/${numPages}`;
   };
+
+  // PDF sayfa boyutunu hesapla - hem genişlik hem yüksekliğe göre dinamik olarak
+  const calculatePageDimensions = () => {
+    // Toplam alanın yaklaşık %90'ını kullan
+    const maxWidth = windowWidth * 0.9;
+    // Navigasyon çubuğu ve diğer UI elementleri için alan bırakarak yüksekliği hesapla
+    const maxHeight = windowHeight * 0.75;
+    
+    // Mobil cihazlarda daha küçük değerler kullan
+    const width = isMobile ? Math.min(maxWidth, 580) : Math.min(maxWidth, 800);
+    
+    return {
+      width,
+      height: maxHeight
+    };
+  };
+
+  const pageDimensions = calculatePageDimensions();
 
   return (
     <div className={styles.pdfViewerContainer || "pdfViewerContainer"} style={{ 
       position: 'relative', 
       width: '100%', 
-      height: '100vh',
+      height: '100%',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -211,12 +182,14 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
       
       {/* PDF görüntüleme alanı */}
       <div style={{ 
-        width: '100%', 
+        width: '100%',
+        flex: 1,
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f9fa',
-        overflow: 'hidden'
+        padding: '20px 10px 80px 10px', // Alt navigasyon için boşluk
+        overflow: 'auto',
+        backgroundColor: '#f8f9fa'
       }}>
         <Document
           file={pdfUrl}
@@ -225,80 +198,23 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
           loading={null}
           options={options}
         >
-          {(() => {
-            // Mevcut sayfa çiftini al
-            const [leftPage, rightPage] = getCurrentPages();
-            
-            // Kapak sayfası (ilk sayfa)
-            if (leftPage === 1 && !rightPage) {
-              return (
-                <div style={{
-                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
-                  borderRadius: '8px',
-                  overflow: 'hidden',
-                  backgroundColor: 'white',
-                  maxWidth: '100%'
-                }}>
-                  <Page
-                    pageNumber={1}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                    width={windowWidth > 1200 ? 750 : Math.min(windowWidth - 70, 500)}                    className={styles.pdfPage || 'pdfPage'}
-                  />
-                </div>
-              );
-            }
-            
-            // İkili sayfa görünümü (kitap görünümü)
-            return (
-              <div style={{
-                display: 'flex',
-                flexDirection: isLandscape || !isMobile ? 'row' : 'column',
-                justifyContent: 'center',
-                alignItems: 'center',
-                gap: '1px',
-                width: '100%',
-                maxWidth: '3000px'
-              }}>
-                {/* Sol sayfa */}
-                <div style={{
-                  boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
-                  overflow: 'hidden',
-                  backgroundColor: 'white',
-                  display: 'flex',
-                  justifyContent: 'flex-end'
-                }}>
-                  <Page
-                    pageNumber={leftPage}
-                    renderTextLayer={false}
-                    renderAnnotationLayer={false}
-                    width={(isLandscape || !isMobile) ? (windowWidth > 1200 ? 700 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 10, 650)}
-                    className={styles.pdfPage || 'pdfPage'}
-                  />
-                </div>
-                
-                {/* Sağ sayfa */}
-                {rightPage && (
-                  <div style={{
-                    boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
-                    overflow: 'hidden',
-                    backgroundColor: 'white',
-                    display: 'flex',
-                    justifyContent: 'flex-start'
-                  }}>
-                    <Page
-                      pageNumber={rightPage}
-                      renderTextLayer={false}
-                      renderAnnotationLayer={false}
-                      width={(isLandscape || !isMobile) ? (windowWidth > 1200 ? 700 : Math.min((windowWidth - 200) / 2, 500)) : Math.min(windowWidth - 10, 650)}
-
-                      className={styles.pdfPage || 'pdfPage'}
-                    />
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+          <div style={{
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.12)',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            backgroundColor: 'white',
+            maxWidth: '100%'
+          }}>
+            <Page
+              pageNumber={currentPage}
+              renderTextLayer={false}
+              renderAnnotationLayer={false}
+              width={pageDimensions.width}
+              height={pageDimensions.height}
+              className={styles.pdfPage || 'pdfPage'}
+              scale={1}
+            />
+          </div>
         </Document>
       </div>
       
@@ -322,6 +238,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
           <button 
             onClick={goToPrevPage} 
             disabled={currentPage <= 1}
+            className={styles.pdfNavigationButton}
             style={{ 
               padding: '10px 20px', 
               backgroundColor: currentPage <= 1 ? '#e2e8f0' : '#000000',
@@ -356,6 +273,7 @@ export default function HomePDFViewer({ pdfUrl, companyName }: HomePDFViewerProp
           <button 
             onClick={goToNextPage} 
             disabled={!numPages || currentPage >= numPages}
+            className={styles.pdfNavigationButton}
             style={{ 
               padding: '10px 20px',
               backgroundColor: !numPages || currentPage >= numPages ? '#e2e8f0' : '#000000',
