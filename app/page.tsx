@@ -17,6 +17,7 @@ const AuthForm = ({ onSuccess }: { onSuccess: () => void }) => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
+  const [currentBgIndex, setCurrentBgIndex] = useState<number>(1);
 
   const resetForm = () => {
     setUsername('');
@@ -235,6 +236,7 @@ interface Document {
 const PortfolioPage = ({ preloadedData }: any) => {
   const [companies, setCompanies] = useState<Company[]>(preloadedData?.companies || []);
   const [documents, setDocuments] = useState<Document[]>(preloadedData?.documents || []);
+  const [currentBgIndex, setCurrentBgIndex] = useState<number>(1);
   
   useEffect(() => {
     setCompanies(preloadedData?.companies || []);
@@ -247,6 +249,15 @@ const PortfolioPage = ({ preloadedData }: any) => {
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  
+  // Footer arka plan görseli değişimi için interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBgIndex(prev => prev >= 22 ? 1 : prev + 1);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // Kategorileri oluşturmak için
   useEffect(() => {
@@ -490,6 +501,30 @@ const PortfolioPage = ({ preloadedData }: any) => {
           </div>
         )}
       </div>
+      
+      {/* Basit Footer */}
+      <footer className={styles.simpleFooter}>
+        <div className={styles.footerBg} style={{ backgroundImage: `url(/bg${currentBgIndex}.jpeg)` }}></div>
+        <div className={styles.footerContent}>
+          <div className={styles.footerLogo}>
+            <img src="/logo.svg" alt="Studio Logo" />
+          </div>
+          <div className={styles.footerInfo}>
+            <div>
+              <strong>E-posta:</strong> info@alpgraphicstudio.com
+            </div>
+            <div>
+              <strong>Telefon:</strong> +90 535 727 4040
+            </div>
+            <div>
+              <strong>Adres:</strong> Güvenevler mahallesi 29023 nolu cadde no:2A/7 Şehitkamil/Gaziantep 
+            </div>
+          </div>
+          <div className={styles.footerCopyright}>
+            &copy; {new Date().getFullYear()} alpgraphics studio. Tüm Hakları Saklıdır.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
