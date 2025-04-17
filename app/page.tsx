@@ -522,7 +522,7 @@ export default function Home() {
         const documentsData = await documentsRes.json();
 
         setPreloadedData({
-          companies: companiesData.data || [],
+          companies: (companiesData.data || []).sort((a, b) => a.order - b.order),
           documents: documentsData.data || [],
         });
       } catch (error) {

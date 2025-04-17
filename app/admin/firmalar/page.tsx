@@ -38,17 +38,13 @@ export default function CompaniesPage() {
 
   const fetchCompanies = async () => {
     try {
-      const companiesRes = await fetch('/api/companies');      
-      const data = await companiesRes.json(); // res yerine companiesRes kullanın
-      if (data.success) {
-        // Firmaları sıralama alanına göre sırala (sıralama yoksa id'ye göre)
-        const sortedCompanies = data.data.sort((a, b) => {
-          if (a.order !== undefined && b.order !== undefined) {
-            return a.order - b.order;
-          }
-          return 0;
-        });
-        setCompanies(sortedCompanies);
+      const companiesRes = await fetch('/api/companies');
+      const data = await companiesRes.json();
+      if (data.success && Array.isArray(data.data)) {
+        const sorted = [...data.data]
+          .filter(c => typeof c.order === 'number')
+          .sort((a, b) => a.order - b.order);
+        setCompanies(sorted);
       } else {
         setError('Firma listesi alınamadı.');
       }
@@ -59,46 +55,37 @@ export default function CompaniesPage() {
       setLoading(false);
     }
   };
-  // Sürükle bırak sırasını değiştirme
 const handleDragEnd = async (result) => {
-  // Hedef yok veya hedef liste dışıysa işlem yapma
   if (!result.destination) return;
-  
-  // Sıralama değişmediyse işlem yapma
   if (result.destination.index === result.source.index) return;
-  
-  // Yeniden sıralanmış firmalar listesi oluştur
+
   const items = Array.from(companies);
   const [reorderedItem] = items.splice(result.source.index, 1);
   items.splice(result.destination.index, 0, reorderedItem);
-  
-  // Sıra numaralarını güncelle
+
   const updatedItems = items.map((item, index) => ({
     ...item,
-    order: index
+    order: index,
   }));
-  
-  // State'i güncelle
+
   setCompanies(updatedItems);
-  
-  // Veritabanında sıralamaları güncelle
+
   try {
     const res = await fetch('/api/companies/reorder', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ companies: updatedItems }),
     });
-    
+
     const data = await res.json();
     if (!data.success) {
-      setError('Sıralama kaydedilemedi');
-      // Hata durumunda original listeyi geri yükle
-      fetchCompanies();
+      setError('Sıralama kaydedilemedi.');
+    } else {
+      await fetchCompanies(); // ✅ refresh from DB after reorder
     }
   } catch (err) {
-    setError('Sıralama kaydedilirken hata oluştu');
+    setError('Sıralama kaydedilirken hata oluştu.');
     console.error(err);
-    fetchCompanies();
   }
 };
 
@@ -419,6 +406,17 @@ const res = await fetch(`/api/companies`, {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      width: '100%',
+                      maxWidth: '100%',
+                      boxSizing: 'border-box',
+                      transform: provided.draggableProps.style?.transform ?? 'none',
+                      left: '0px',
+                      top: '0px',
+                      position: 'relative',
+                      zIndex: 10
+                    }}
                     className={`company-item ${snapshot.isDragging ? 'dragging' : ''}`}
                   >
                     <div className="company-drag-handle">
@@ -556,17 +554,6 @@ const res = await fetch(`/api/companies`, {
           border-bottom: 1px solid #eee;
         }
         
-        .company-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border: 1px solid #eee;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  background-color: #f9f9f9;
-  cursor: grab;
-}
 
 .company-item.dragging {
   background-color: #f0f8ff;

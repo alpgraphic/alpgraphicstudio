@@ -1,4 +1,3 @@
-// models/Company.js
 import mongoose from 'mongoose';
 
 const CompanySchema = new mongoose.Schema({
@@ -27,6 +26,10 @@ const CompanySchema = new mongoose.Schema({
   pdfUrl: {
     type: String,
     default: ''
+  },
+  order: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 

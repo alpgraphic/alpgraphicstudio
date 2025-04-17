@@ -4,9 +4,8 @@ import Company from '@/models/Company';
 
 export async function GET() {
   await dbConnect();
-  
   try {
-    const companies = await Company.find({});
+    const companies = await Company.find({}).sort({ order: 1 });
     return NextResponse.json({ success: true, data: companies });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
@@ -18,9 +17,17 @@ export async function POST(request) {
   
   try {
     const body = await request.json();
-    console.log('Alınan veri:', body); // Debug için
+    console.log('Alınan veri:', body);
     
-    const { name, logo, cover, category = 'Genel', year = new Date().getFullYear().toString(), pdfUrl = '' } = body;
+    const { name, logo, cover, category = 'Genel', year = new Date().getFullYear().toString(), pdfUrl = '', order } = body;
+    
+    // Eğer order değeri belirtilmemişse, en yüksek order değerini bulup +1 ekle
+    let newOrder = order;
+    if (newOrder === undefined) {
+      // En yüksek order değerini bul
+      const lastCompany = await Company.findOne().sort({ order: -1 });
+      newOrder = lastCompany ? lastCompany.order + 1 : 0;
+    }
     
     // Veri modeline uygun şekilde dökümanı oluştur
     const company = await Company.create({ 
@@ -29,12 +36,13 @@ export async function POST(request) {
       cover, 
       category, 
       year, 
-      pdfUrl 
+      pdfUrl,
+      order: newOrder
     });
     
     return NextResponse.json({ success: true, data: company }, { status: 201 });
   } catch (error) {
-    console.error('HATA DETAYI:', error); // Debug için
+    console.error('HATA DETAYI:', error);
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
